@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Leads Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+        const { Search, Download, Filter, ExternalLink, Star, BarChart3, Loader } = lucide;
+
+        const StoreLeadsApp = () => {
+            const [currentPage, setCurrentPage] = useState(1);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [selectedCategory, setSelectedCategory] = useState('Fashion & Apparel');
+            const [showExportModal, setShowExportModal] = useState(false);
+            const [showExportColumnFilter, setShowExportColumnFilter] = useState(false);
+            const [selectedRows, setSelectedRows] = useState(new Set());
+            const [showColumnFilter, setShowColumnFilter] = useState(false);
+            const [isLoading, setIsLoading] = useState(false);
+            const [allData, setAllData] = useState([]);
+            const [displayData, setDisplayData] = useState([]);
+            
+            const [exportColumns, setExportColumns] = useState({
+                domain: true,
+                merchant_name: true,
+                city: true,
+                state: true,
+                average_product_price: true,
+                platform: true,
+                platform_rank: true,
+                status: true,
+                estimated_monthly_sales: true,
+                emails: true,
+                phones: true,
+                instagram: false,
+                facebook: false,
+                whatsapp: false
+            });
+            
+            const [visibleColumns, setVisibleColumns] = useState({
+                domain: true,
+                merchant_name: true,
+                city: true,
+                state: true,
+                average_product_price: true,
+                platform: true,
+                platform_rank: true,
+                status: true,
+                estimated_monthly_sales: true,
+                emails: false,
+                phones: false,
+                instagram: false,
+                facebook: false,
+                whatsapp: false
+            });
+
+            const itemsPerPage = 30;
+            const categories = ['Fashion & Apparel', 'Beauty & Fitness', 'Home & Garden'];
+
+            // Generate realistic sample data based on category
+            const generateCategoryData = (category) => {
+                const samples = [];
+                const cities = ['Mumbai', 'Delhi', 'Bengaluru', 'Chennai', 'Kolkata', 'Pune', 'Hyderabad', 'Ahmedabad', 'Jaipur', 'Surat'];
+                const states = ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'West Bengal', 'Maharashtra', 'Telangana', 'Gujarat', 'Rajasthan', 'Gujarat'];
+                
+                const businessData = {
+                    'Fashion & Apparel': {
+                        names: ['StudioSuits', 'GIVA Jewellery', 'Westside', 'Myntra Fashion', 'AJIO', 'Pantaloons Fashion', 'Fabindia', 'Max Fashion', 'Reliance Trends', 'Shoppers Stop'],
+                        domains: ['studiosuits.com', 'giva.co', 'westside.com', 'myntra.com', 'ajio.com', 'pantaloons.com', 'fabindia.com', 'maxfashion.com', 'reliancetrends.com', 'shoppersstop.com']
+                    },
+                    'Beauty & Fitness': {
+                        names: ['Plum Goodness', 'Minimalist', 'Nykaa', 'SUGAR Cosmetics', 'Mamaearth', 'The Culture Co', 'Kay Beauty', 'Lakme', 'Colorbar', 'Faces Canada'],
+                        domains: ['plumgoodness.com', 'minimalist.co', 'nykaa.com', 'sugarcosmetics.com', 'mamaearth.in', 'thecultureco.com', 'kaybeauty.com', 'lakme.com', 'colorbar.co.in', 'facescanada.com']
+                    },
+                    'Home & Garden': {
+                        names: ['Duroflex', 'Urban Ladder', 'Pepperfry', 'Furniture World', 'Hometown', 'Godrej Interio', 'Evok Furniture', 'Nilkamal', 'Spacewood', 'IKEA India'],
+                        domains: ['duroflex.com', 'urbanladder.com', 'pepperfry.com', 'furnitureworld.in', 'hometown.in', 'godrejinterio.com', 'evok.in', 'nilkamal.com', 'spacewood.in', 'ikea.com']
+                    }
+                };
+
+                const data = businessData[category] || businessData['Fashion & Apparel'];
+                
+                for (let i = 0; i < 600; i++) {
+                    const cityIndex = i % cities.length;
+                    const businessIndex = i % data.names.length;
+                    const storeNumber = Math.floor(i / data.names.length) + 1;
+                    
+                    samples.push({
+                        id: i + 1,
+                        domain: `www.${data.domains[businessIndex]}`,
+                        merchant_name: data.names[businessIndex] + (storeNumber > 1 ? ` Store ${storeNumber}` : ''),
+                        city: cities[cityIndex],
+                        state: states[cityIndex],
+                        average_product_price: `INR ₹${(Math.random() * 5000 + 500).toFixed(2)}`,
+                        platform: 'Shopify',
+                        platform_rank: Math.floor(Math.random() * 10000) + 1,
+                        status: 'Active',
+                        estimated_monthly_sales: `USD $${(Math.random() * 1000000 + 100000).toFixed(2)}`,
+                        emails: `contact@${data.domains[businessIndex]}`,
+                        phones: `+91 ${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+                        instagram: data.names[businessIndex].toLowerCase().replace(/\s+/g, ''),
+                        facebook: data.names[businessIndex].toLowerCase().replace(/\s+/g, ''),
+                        whatsapp: Math.floor(Math.random() * 9000000000) + 1000000000
+                    });
+                }
+                return samples;
+            };
+
+            // Load data when category changes
+            useEffect(() => {
+                const loadData = async () => {
+                    setIsLoading(true);
+                    
+                    // Simulate loading delay for category changes
+                    if (allData.length > 0) {
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
+                    
+                    const newData = generateCategoryData(selectedCategory);
+                    setAllData(newData);
+                    setCurrentPage(1);
+                    setIsLoading(false);
+                };
+                
+                loadData();
+            }, [selectedCategory]);
+
+            // Filter data based on search
+            const filteredData = useMemo(() => {
+                return allData.filter(item => {
+                    const domain = item.domain || '';
+                    const merchantName = item.merchant_name || '';
+                    const matchesSearch = domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                         merchantName.toLowerCase().includes(searchTerm.toLowerCase());
+                    return matchesSearch;
+                });
+            }, [allData, searchTerm]);
+
+            // Handle pagination with 3-second delay
+            useEffect(() => {
+                const loadPage = async () => {
+                    if (filteredData.length === 0) return;
+                    
+                    setIsLoading(true);
+                    setDisplayData([]); // Clear current data
+                    
+                    // 3-second delay for page changes
+                    if (currentPage > 1) {
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                    }
+                    
+                    const startIndex = (currentPage - 1) * itemsPerPage;
+                    const endIndex = startIndex + itemsPerPage;
+                    const pageData = filteredData.slice(startIndex, endIndex);
+                    
+                    setDisplayData(pageData);
+                    setIsLoading(false);
+                };
+
+                loadPage();
+            }, [currentPage, filteredData]);
+
+            // Reset page when search changes
+            useEffect(() => {
+                setCurrentPage(1);
+            }, [searchTerm]);
+
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+            const handlePageChange = (newPage) => {
+                if (newPage !== currentPage && newPage >= 1 && newPage <= totalPages && !isLoading) {
+                    setCurrentPage(newPage);
+                }
+            };
+
+            const handleRowSelect = (id) => {
+                const newSelected = new Set(selectedRows);
+                if (newSelected.has(id)) {
+                    newSelected.delete(id);
+                } else {
+                    newSelected.add(id);
+                }
+                setSelectedRows(newSelected);
+            };
+
+            const handleExport = (customColumns = null) => {
+                const dataToExport = selectedRows.size > 0 
+                    ? allData.filter(item => selectedRows.has(item.id))
+                    : filteredData;
+                
+                const headers = customColumns ? 
+                    Object.keys(customColumns).filter(col => customColumns[col]) :
+                    Object.keys(visibleColumns).filter(col => visibleColumns[col]);
+                
+                const csvContent = [
+                    headers.join(','),
+                    ...dataToExport.map(item => 
+                        headers.map(header => `"${item[header] || ''}"`).join(',')
+                    )
+                ].join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `store-leads-${selectedCategory.toLowerCase().replace(/\s+/g, '-')}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                setShowExportModal(false);
+            };
+
+            return React.createElement('div', { className: "w-full min-h-screen bg-gray-50" },
+                React.createElement('div', { className: "flex min-h-screen" },
+                    // Sidebar
+                    React.createElement('div', { className: "w-64 bg-white shadow-sm p-4" },
+                        React.createElement('div', { className: "space-y-6" },
+                            React.createElement('div', null,
+                                React.createElement('button', { className: "text-blue-600 text-sm font-medium" }, "Advanced"),
+                                React.createElement('div', { className: "flex items-center space-x-2 mt-2" },
+                                    React.createElement(Star, { className: "text-yellow-400", size: 16 }),
+                                    React.createElement(BarChart3, { className: "text-gray-400", size: 16 }),
+                                    React.createElement(Download, { className: "text-gray-400", size: 16 }),
+                                    React.createElement('h4', { className: "text-sm font-medium text-gray-700 mb-3" }, "Choose columns to export:"),
+                                    React.createElement('div', { className: "grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" },
+                                        Object.keys(exportColumns).map(column =>
+                                            React.createElement('label', { key: column, className: "flex items-center text-sm" },
+                                                React.createElement('input', {
+                                                    type: "checkbox",
+                                                    checked: exportColumns[column],
+                                                    onChange: (e) => setExportColumns({
+                                                        ...exportColumns,
+                                                        [column]: e.target.checked
+                                                    }),
+                                                    className: "mr-2 rounded border-gray-300"
+                                                }),
+                                                React.createElement('span', { className: "capitalize" }, column.replace(/_/g, ' '))
+                                            )
+                                        )
+                                    ),
+                                    React.createElement('div', { className: "flex space-x-2 mt-3" },
+                                        React.createElement('button', {
+                                            onClick: () => {
+                                                const allSelected = {};
+                                                Object.keys(exportColumns).forEach(col => allSelected[col] = true);
+                                                setExportColumns(allSelected);
+                                            },
+                                            className: "text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200"
+                                        }, "Select All"),
+                                        React.createElement('button', {
+                                            onClick: () => {
+                                                const noneSelected = {};
+                                                Object.keys(exportColumns).forEach(col => noneSelected[col] = false);
+                                                setExportColumns(noneSelected);
+                                            },
+                                            className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded hover:bg-gray-200"
+                                        }, "Select None"),
+                                        React.createElement('button', {
+                                            onClick: () => setExportColumns({...visibleColumns}),
+                                            className: "text-xs bg-green-100 text-green-600 px-2 py-1 rounded hover:bg-green-200"
+                                        }, "Use Current View")
+                                    )
+                                ),
+                                React.createElement('button', {
+                                    onClick: () => handleExport(exportColumns),
+                                    disabled: !Object.values(exportColumns).some(val => val),
+                                    className: "w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                }, `${Object.values(exportColumns).filter(val => val).length} columns selected - Export CSV`)
+                            )
+                        ),
+                        React.createElement('div', { className: "flex space-x-3 mt-6" },
+                            React.createElement('button', {
+                                onClick: () => {
+                                    setShowExportModal(false);
+                                    setShowExportColumnFilter(false);
+                                },
+                                className: "flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors"
+                            }, "Cancel")
+                        )
+                    )
+                )
+            );
+        };
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(StoreLeadsApp));
+    </script>
+</body>
+</html>button', { className: "text-blue-600 text-sm" }, "Clear"),
+                                    React.createElement('button', { 
+                                        onClick: () => setShowColumnFilter(!showColumnFilter),
+                                        className: "text-blue-600 text-sm hover:text-blue-800"
+                                    }, "Columns"),
+                                    React.createElement(Filter, { className: "text-gray-400", size: 16 })
+                                )
+                            ),
+                            React.createElement('div', null,
+                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Search"),
+                                React.createElement('div', { className: "relative" },
+                                    React.createElement(Search, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400", size: 16 }),
+                                    React.createElement('input', {
+                                        type: "text",
+                                        value: searchTerm,
+                                        onChange: (e) => setSearchTerm(e.target.value),
+                                        className: "w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                        placeholder: "Search domains..."
+                                    })
+                                )
+                            ),
+                            React.createElement('div', null,
+                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Category"),
+                                React.createElement('select', {
+                                    value: selectedCategory,
+                                    onChange: (e) => setSelectedCategory(e.target.value),
+                                    className: "w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                },
+                                    categories.map(category => 
+                                        React.createElement('option', { key: category, value: category }, category)
+                                    )
+                                )
+                            ),
+                            React.createElement('div', null,
+                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Platform"),
+                                React.createElement('select', { className: "w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" },
+                                    React.createElement('option', null, "Shopify"),
+                                    React.createElement('option', null, "All")
+                                ),
+                                React.createElement('div', { className: "mt-2 text-xs text-gray-500" },
+                                    React.createElement('div', null, "WooCommerce: 4,602,082"),
+                                    React.createElement('div', null, "Shopify: 3,187,025"),
+                                    React.createElement('button', { className: "text-blue-600" }, "306 more platforms available")
+                                )
+                            ),
+                            React.createElement('div', null,
+                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Status"),
+                                React.createElement('select', { className: "w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" },
+                                    React.createElement('option', null, "Active"),
+                                    React.createElement('option', null, "All")
+                                ),
+                                React.createElement('div', { className: "mt-2 text-xs text-gray-500" },
+                                    React.createElement('div', null, "Active: 7,189,832"),
+                                    React.createElement('div', null, "Password Protected: 599,275")
+                                )
+                            ),
+                            showColumnFilter && React.createElement('div', { className: "border-t pt-4" },
+                                React.createElement('h3', { className: "text-sm font-medium text-gray-700 mb-3" }, "Visible Columns"),
+                                React.createElement('div', { className: "space-y-2 max-h-64 overflow-y-auto" },
+                                    Object.keys(visibleColumns).map(column =>
+                                        React.createElement('label', { key: column, className: "flex items-center text-sm" },
+                                            React.createElement('input', {
+                                                type: "checkbox",
+                                                checked: visibleColumns[column],
+                                                onChange: (e) => setVisibleColumns({
+                                                    ...visibleColumns,
+                                                    [column]: e.target.checked
+                                                }),
+                                                className: "mr-2 rounded border-gray-300"
+                                            }),
+                                            React.createElement('span', { className: "capitalize" }, column.replace(/_/g, ' '))
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    // Main Content
+                    React.createElement('div', { className: "flex-1 flex flex-col" },
+                        // Header
+                        React.createElement('div', { className: "bg-blue-600 text-white p-4 w-full" },
+                            React.createElement('div', { className: "flex items-center justify-between" },
+                                React.createElement('div', { className: "flex items-center space-x-2" },
+                                    React.createElement('div', { className: "w-6 h-6 bg-white rounded" }),
+                                    React.createElement('h1', { className: "text-xl font-semibold" }, "Store Leads")
+                                ),
+                                React.createElement('button', { 
+                                    onClick: () => setShowExportModal(true),
+                                    className: "flex items-center space-x-2 bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded transition-colors"
+                                },
+                                    React.createElement(Download, { size: 16 }),
+                                    React.createElement('span', null, "EXPORT")
+                                )
+                            )
+                        ),
+                        // Content
+                        React.createElement('div', { className: "flex-1 p-6 bg-gray-50" },
+                            React.createElement('div', { className: "mb-4" },
+                                React.createElement('div', { className: "flex items-center justify-between" },
+                                    React.createElement('div', null,
+                                        React.createElement('p', { className: "text-sm text-green-600" },
+                                            `✅ ${selectedCategory} records loaded from India`
+                                        )
+                                    ),
+                                    React.createElement('div', { className: "flex items-center space-x-2" },
+                                        React.createElement('button', {
+                                            onClick: () => handlePageChange(currentPage - 1),
+                                            disabled: currentPage <= 1 || isLoading,
+                                            className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                        }, "Previous"),
+                                        React.createElement('span', { className: "px-3 py-1" }, `Page ${currentPage} of ${totalPages}`),
+                                        React.createElement('button', {
+                                            onClick: () => handlePageChange(currentPage + 1),
+                                            disabled: currentPage >= totalPages || isLoading,
+                                            className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                        }, "Next")
+                                    )
+                                )
+                            ),
+                            React.createElement('div', { className: "bg-white rounded-lg shadow overflow-hidden" },
+                                isLoading ? 
+                                    React.createElement('div', { className: "flex items-center justify-center py-20" },
+                                        React.createElement('div', { className: "text-center" },
+                                            React.createElement(Loader, { className: "animate-spin mx-auto mb-4", size: 32 }),
+                                            React.createElement('p', { className: "text-gray-600" }, "Loading data...")
+                                        )
+                                    ) :
+                                    React.createElement('div', { className: "overflow-x-auto" },
+                                        React.createElement('table', { className: "w-full" },
+                                            React.createElement('thead', { className: "bg-gray-50" },
+                                                React.createElement('tr', null,
+                                                    React.createElement('th', { className: "px-4 py-3 text-left" },
+                                                        React.createElement('input', { type: "checkbox", className: "rounded border-gray-300" })
+                                                    ),
+                                                    visibleColumns.domain && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Domain"),
+                                                    visibleColumns.merchant_name && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Merchant Name"),
+                                                    visibleColumns.city && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "City"),
+                                                    visibleColumns.state && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "State"),
+                                                    visibleColumns.average_product_price && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Avg Price"),
+                                                    visibleColumns.platform && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Platform"),
+                                                    visibleColumns.platform_rank && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Rank"),
+                                                    visibleColumns.status && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Status"),
+                                                    visibleColumns.estimated_monthly_sales && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Est. Sales"),
+                                                    visibleColumns.emails && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Emails"),
+                                                    visibleColumns.phones && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Phones")
+                                                )
+                                            ),
+                                            React.createElement('tbody', { className: "bg-white divide-y divide-gray-200" },
+                                                displayData.map((item) =>
+                                                    React.createElement('tr', { key: item.id, className: "hover:bg-gray-50" },
+                                                        React.createElement('td', { className: "px-4 py-3" },
+                                                            React.createElement('input', {
+                                                                type: "checkbox",
+                                                                checked: selectedRows.has(item.id),
+                                                                onChange: () => handleRowSelect(item.id),
+                                                                className: "rounded border-gray-300"
+                                                            })
+                                                        ),
+                                                        visibleColumns.domain && React.createElement('td', { className: "px-4 py-3 text-sm font-medium text-gray-900" },
+                                                            React.createElement('a', {
+                                                                href: `https://${item.domain}`,
+                                                                target: "_blank",
+                                                                rel: "noopener noreferrer",
+                                                                className: "text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                                                            },
+                                                                React.createElement('span', { className: "truncate max-w-40" }, item.domain),
+                                                                React.createElement(ExternalLink, { size: 12 })
+                                                            )
+                                                        ),
+                                                        visibleColumns.merchant_name && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.merchant_name || '-'),
+                                                        visibleColumns.city && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.city || '-'),
+                                                        visibleColumns.state && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.state || '-'),
+                                                        visibleColumns.average_product_price && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.average_product_price || '-'),
+                                                        visibleColumns.platform && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.platform || '-'),
+                                                        visibleColumns.platform_rank && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.platform_rank || '-'),
+                                                        visibleColumns.status && React.createElement('td', { className: "px-4 py-3 text-sm" },
+                                                            React.createElement('span', { className: "inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" },
+                                                                item.status || 'Active'
+                                                            )
+                                                        ),
+                                                        visibleColumns.estimated_monthly_sales && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.estimated_monthly_sales || '-'),
+                                                        visibleColumns.emails && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500 truncate max-w-32" }, item.emails || '-'),
+                                                        visibleColumns.phones && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.phones || '-')
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                            ),
+                            // Bottom Pagination
+                            !isLoading && totalPages > 1 && React.createElement('div', { className: "flex items-center justify-center mt-6 space-x-2" },
+                                React.createElement('button', {
+                                    onClick: () => handlePageChange(1),
+                                    disabled: currentPage <= 1,
+                                    className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                }, "First"),
+                                React.createElement('button', {
+                                    onClick: () => handlePageChange(currentPage - 1),
+                                    disabled: currentPage <= 1,
+                                    className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                }, "Previous"),
+                                [...Array(Math.min(5, totalPages))].map((_, i) => {
+                                    const pageNum = Math.max(1, currentPage - 2) + i;
+                                    if (pageNum <= totalPages) {
+                                        return React.createElement('button', {
+                                            key: pageNum,
+                                            onClick: () => handlePageChange(pageNum),
+                                            className: `px-3 py-1 border rounded ${currentPage === pageNum ? 'bg-blue-600 text-white' : 'hover:bg-gray-50'}`
+                                        }, pageNum);
+                                    }
+                                    return null;
+                                }),
+                                React.createElement('button', {
+                                    onClick: () => handlePageChange(currentPage + 1),
+                                    disabled: currentPage >= totalPages,
+                                    className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                }, "Next"),
+                                React.createElement('button', {
+                                    onClick: () => handlePageChange(totalPages),
+                                    disabled: currentPage >= totalPages,
+                                    className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                }, "Last")
+                            )
+                        )
+                    )
+                ),
+                // Export Modal
+                showExportModal && React.createElement('div', { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" },
+                    React.createElement('div', { className: "bg-white rounded-lg p-6 w-[600px] max-h-[80vh] overflow-y-auto" },
+                        React.createElement('h3', { className: "text-lg font-semibold mb-4" }, "Export Data"),
+                        React.createElement('div', { className: "space-y-3" },
+                            React.createElement('div', { className: "border rounded-lg p-4 bg-gray-50" },
+                                React.createElement('div', { className: "flex items-center justify-between mb-3" },
+                                    React.createElement('div', null,
+                                        React.createElement('div', { className: "font-medium" }, "📊 Export Current View"),
+                                        React.createElement('div', { className: "text-sm text-gray-600" }, "Download visible data as CSV with custom columns")
+                                    ),
+                                    React.createElement('button', {
+                                        onClick: () => setShowExportColumnFilter(!showExportColumnFilter),
+                                        className: "text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    }, showExportColumnFilter ? 'Hide Columns' : 'Select Columns')
+                                ),
+                                showExportColumnFilter && React.createElement('div', { className: "mb-4 p-3 border rounded bg-white" },
+                                    React.createElement('
