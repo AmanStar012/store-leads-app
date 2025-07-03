@@ -1,12 +1,4 @@
-<label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-country" class="mr-2"> Country
-                            </label>
-                            <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-companysize" class="mr-2"> Company Size
-                            </label>
-                            <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-employees" class="mr-2"> Employees
-                            </label><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -69,9 +61,9 @@
                             <option value="Australia">Australia</option>
                         </select>
                         <div class="mt-2 text-xs text-gray-500">
-                            <div>India: 600 records</div>
-                            <div>USA: 200 records</div>
-                            <div>UK: 150 records</div>
+                            <div>India: 1000 records</div>
+                            <div>USA: 0 records</div>
+                            <div>UK: 0 records</div>
                         </div>
                     </div>
 
@@ -195,7 +187,7 @@
                             </div>
                             <div class="flex items-center space-x-2">
                                 <button onclick="prevPage()" id="prevBtn" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Previous</button>
-                                <span id="pageInfo">Page 1 of 20</span>
+                                <span id="pageInfo">Page 1 of 34</span>
                                 <button onclick="nextPage()" id="nextBtn" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Next</button>
                             </div>
                         </div>
@@ -262,7 +254,7 @@
                 <button onclick="exportToDrive()" class="w-full bg-green-600 text-white py-3 px-4 rounded hover:bg-green-700 transition-colors text-left">
                     <div class="font-medium">🔗 Access Full Dataset via Google Drive</div>
                     <div class="text-sm opacity-90" id="driveDescription">
-                        Complete Fashion & Apparel dataset (600 records)
+                        Complete Fashion & Apparel dataset (1000 records)
                     </div>
                 </button>
                 
@@ -314,13 +306,13 @@
                                 <input type="checkbox" id="exp-phones" checked class="mr-2"> Phones
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-instagram" class="mr-2"> Instagram
+                                <input type="checkbox" id="exp-country" class="mr-2"> Country
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-facebook" class="mr-2"> Facebook
+                                <input type="checkbox" id="exp-companysize" class="mr-2"> Company Size
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-whatsapp" class="mr-2"> WhatsApp
+                                <input type="checkbox" id="exp-employees" class="mr-2"> Employees
                             </label>
                         </div>
                         <div class="flex space-x-2 mt-3">
@@ -351,26 +343,25 @@
     </div>
 
     <script>
-        // Enhanced data with 600 entries per category
+        // Enhanced data with 1000 entries per category
         const businessData = {
             'Fashion & Apparel': {
-                names: ['StudioSuits', 'GIVA Jewellery', 'Westside', 'Myntra Fashion', 'AJIO', 'Pantaloons Fashion', 'Fabindia', 'Max Fashion', 'Reliance Trends', 'Shoppers Stop', 'Lifestyle Stores', 'Central Fashion', 'Trends Fashion', 'Zara India', 'H&M India', 'Uniqlo India', 'Forever 21 India', 'Vero Moda', 'Only India', 'Jack & Jones'],
-                domains: ['studiosuits.com', 'giva.co', 'westside.com', 'myntra.com', 'ajio.com', 'pantaloons.com', 'fabindia.com', 'maxfashion.com', 'reliancetrends.com', 'shoppersstop.com', 'lifestylestores.com', 'centralfashion.com', 'trends.com', 'zara.com', 'hm.com', 'uniqlo.com', 'forever21.com', 'veromoda.com', 'only.com', 'jackjones.com']
+                names: ['StudioSuits', 'GIVA Jewellery', 'Westside', 'Myntra Fashion', 'AJIO', 'Pantaloons Fashion', 'Fabindia', 'Max Fashion', 'Reliance Trends', 'Shoppers Stop', 'Lifestyle Stores', 'Central Fashion', 'Trends Fashion', 'Zara India', 'H&M India', 'Uniqlo India', 'Forever 21 India', 'Vero Moda', 'Only India', 'Jack & Jones', 'Biba', 'W for Woman', 'Global Desi', 'Aurelia', 'Rangriti', 'Libas', 'Indya', 'Juniper', 'Soch', 'Akkriti by Pantaloons', 'Cottinfab', 'Yufta', 'Sassafras', 'Varanga', 'Shree', 'Anouk', 'Khushal K', 'Navya', 'Sangria', 'Vishudh', 'Kurtis & More', 'Khadi India', 'Fabindia Organic', 'Anokhi', 'Good Earth', 'Chumbak Fashion', 'Nicobar', 'Jaypore', 'Craftsvilla', 'Ethnic Plus'],
+                domains: ['studiosuits.com', 'giva.co', 'westside.com', 'myntra.com', 'ajio.com', 'pantaloons.com', 'fabindia.com', 'maxfashion.com', 'reliancetrends.com', 'shoppersstop.com', 'lifestylestores.com', 'centralfashion.com', 'trends.com', 'zara.com', 'hm.com', 'uniqlo.com', 'forever21.com', 'veromoda.com', 'only.com', 'jackjones.com', 'biba.in', 'wforwoman.com', 'globaldesi.com', 'aurelia.in', 'rangriti.com', 'libas.in', 'indya.in', 'juniper.in', 'soch.com', 'akkriti.com', 'cottinfab.com', 'yufta.com', 'sassafras.in', 'varanga.com', 'shree.com', 'anouk.com', 'khushalk.com', 'navya.in', 'sangria.in', 'vishudh.com', 'kurtisandmore.com', 'khadiindia.com', 'fabindiaorganic.com', 'anokhi.com', 'goodearth.in', 'chumbak.com', 'nicobar.com', 'jaypore.com', 'craftsvilla.com', 'ethnicplus.in']
             },
             'Beauty & Fitness': {
-                names: ['Plum Goodness', 'Minimalist', 'Nykaa', 'SUGAR Cosmetics', 'Mamaearth', 'The Culture Co', 'Kay Beauty', 'Lakme', 'Colorbar', 'Faces Canada', 'Lotus Herbals', 'Maybelline India', 'L\'Oreal Paris', 'Revlon India', 'Biotique', 'Himalaya Wellness', 'Patanjali Ayurved', 'Khadi Natural', 'Forest Essentials', 'The Body Shop India'],
-                domains: ['plumgoodness.com', 'minimalist.co', 'nykaa.com', 'sugarcosmetics.com', 'mamaearth.in', 'thecultureco.com', 'kaybeauty.com', 'lakme.com', 'colorbar.co.in', 'facescanada.com', 'lotusherbals.com', 'maybelline.co.in', 'loreal.co.in', 'revlon.co.in', 'biotique.com', 'himalayawellness.com', 'patanjali.com', 'khadinatural.com', 'forestessentials.com', 'thebodyshop.co.in']
+                names: ['Plum Goodness', 'Minimalist', 'Nykaa', 'SUGAR Cosmetics', 'Mamaearth', 'The Culture Co', 'Kay Beauty', 'Lakme', 'Colorbar', 'Faces Canada', 'Lotus Herbals', 'Maybelline India', 'L\'Oreal Paris', 'Revlon India', 'Biotique', 'Himalaya Wellness', 'Patanjali Ayurved', 'Khadi Natural', 'Forest Essentials', 'The Body Shop India', 'Kama Ayurveda', 'Juicy Chemistry', 'Daughter Earth', 'Bare Anatomy', 'mCaffeine', 'Dot & Key', 'Pilgrim', 'Wow Skin Science', 'Bella Vita Organic', 'Arata', 'Puresense', 'Bombay Shaving Company', 'Man Company', 'Beardo', 'Ustraa', 'Park Avenue', 'Nivea Men', 'Gillette India', 'Old Spice India', 'Axe India', 'Garnier Men', 'L\'Oreal Men Expert', 'Neutrogena India', 'Cetaphil India', 'Olay India', 'Pond\'s India', 'Dove India', 'Vaseline India', 'Johnson\'s India', 'Himalaya Baby'],
+                domains: ['plumgoodness.com', 'minimalist.co', 'nykaa.com', 'sugarcosmetics.com', 'mamaearth.in', 'thecultureco.com', 'kaybeauty.com', 'lakme.com', 'colorbar.co.in', 'facescanada.com', 'lotusherbals.com', 'maybelline.co.in', 'loreal.co.in', 'revlon.co.in', 'biotique.com', 'himalayawellness.com', 'patanjali.com', 'khadinatural.com', 'forestessentials.com', 'thebodyshop.co.in', 'kamaayurveda.com', 'juicychemistry.com', 'daughterearth.in', 'bareanatomyindia.com', 'mcaffeine.com', 'dotandkey.com', 'pilgrimproducts.com', 'wowskinscience.com', 'bellavitaorganic.com', 'arata.in', 'puresense.co.in', 'bombayshavingcompany.com', 'mancompany.in', 'beardo.in', 'ustraa.com', 'parkavenue.in', 'niveamen.in', 'gillette.co.in', 'oldspice.co.in', 'axe.co.in', 'garnier.co.in', 'lorealparis.co.in', 'neutrogena.co.in', 'cetaphil.co.in', 'olay.co.in', 'ponds.co.in', 'dove.co.in', 'vaseline.co.in', 'johnsons.co.in', 'himalayababy.com']
             },
             'Home & Garden': {
-                names: ['Duroflex', 'Urban Ladder', 'Pepperfry', 'Furniture World', 'Hometown', 'Godrej Interio', 'Evok Furniture', 'Nilkamal', 'Spacewood', 'IKEA India', 'FabFurnish', 'WoodenStreet', 'Livspace', 'Home Centre', 'Decornation', '@home', 'Perfect Homes', 'Sleepwell', 'Kurlon', 'Cello World'],
-                domains: ['duroflex.com', 'urbanladder.com', 'pepperfry.com', 'furnitureworld.in', 'hometown.in', 'godrejinterio.com', 'evok.in', 'nilkamal.com', 'spacewood.in', 'ikea.com', 'fabfurnish.com', 'woodenstreet.com', 'livspace.com', 'homecentre.in', 'decornation.com', 'athome.co.in', 'perfecthomes.in', 'sleepwell.in', 'kurlon.com', 'celloworld.com']
+                names: ['Duroflex', 'Urban Ladder', 'Pepperfry', 'Furniture World', 'Hometown', 'Godrej Interio', 'Evok Furniture', 'Nilkamal', 'Spacewood', 'IKEA India', 'FabFurnish', 'WoodenStreet', 'Livspace', 'Home Centre', 'Decornation', '@home', 'Perfect Homes', 'Sleepwell', 'Kurlon', 'Cello World', 'Wipro Furniture', 'Durian Furniture', 'Royaloak', 'Hatil', 'Damro', 'Featherlite', 'Zuari Furniture', 'Housefull', 'Furniture Kraft', 'Wooden Twist', 'Teak Wood Central', 'Furniture Wala', 'Home Town', 'Furniture Bazaar', 'Royaloak Furniture', 'Dream Furniture', 'Furniture Mall', 'Home Decor Bazaar', 'Furniture Online', 'Wooden Street', 'Furniture Store', 'Home Essentials', 'Decor Mart', 'Furniture Hub', 'Home Style', 'Furniture Palace', 'Decor Store', 'Home Furnishing', 'Furniture Depot', 'Interior Bazaar'],
+                domains: ['duroflex.com', 'urbanladder.com', 'pepperfry.com', 'furnitureworld.in', 'hometown.in', 'godrejinterio.com', 'evok.in', 'nilkamal.com', 'spacewood.in', 'ikea.com', 'fabfurnish.com', 'woodenstreet.com', 'livspace.com', 'homecentre.in', 'decornation.com', 'athome.co.in', 'perfecthomes.in', 'sleepwell.in', 'kurlon.com', 'celloworld.com', 'wiprofurniture.com', 'durian.in', 'royaloak.com', 'hatil.com', 'damro.in', 'featherlite.com', 'zuari.com', 'housefull.co.in', 'furniturekraft.com', 'woodentwist.com', 'teakwoodcentral.com', 'furniturewala.com', 'hometown.in', 'furniturebazaar.com', 'royaloakfurniture.com', 'dreamfurniture.in', 'furnituremall.co.in', 'homedecorbazaar.com', 'furnitureonline.in', 'woodenstreet.co.in', 'furniturestore.in', 'homeessentials.co.in', 'decormart.in', 'furniturehub.co.in', 'homestyle.in', 'furniturepalace.com', 'decorstore.in', 'homefurnishing.co.in', 'furnituredepot.in', 'interiorbazaar.com']
             }
         };
 
-        const cities = ['Mumbai', 'Delhi', 'Bengaluru', 'Chennai', 'Kolkata', 'Pune', 'Hyderabad', 'Ahmedabad', 'Jaipur', 'Surat', 'Kanpur', 'Lucknow', 'Nagpur', 'Patna', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Vadodara', 'Coimbatore'];
-        const states = ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'West Bengal', 'Maharashtra', 'Telangana', 'Gujarat', 'Rajasthan', 'Gujarat', 'Uttar Pradesh', 'Uttar Pradesh', 'Maharashtra', 'Bihar', 'Madhya Pradesh', 'Maharashtra', 'Madhya Pradesh', 'Andhra Pradesh', 'Gujarat', 'Tamil Nadu'];
-        const countries = ['India', 'India', 'India', 'India', 'India', 'India', 'India', 'India', 'USA', 'UK']; // Mostly India
-        const platforms = ['Shopify', 'Shopify', 'Shopify', 'WooCommerce', 'Magento', 'BigCommerce'];
+        const cities = ['Mumbai', 'Delhi', 'Bengaluru', 'Chennai', 'Kolkata', 'Pune', 'Hyderabad', 'Ahmedabad', 'Jaipur', 'Surat', 'Kanpur', 'Lucknow', 'Nagpur', 'Patna', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Vadodara', 'Coimbatore', 'Nashik', 'Faridabad', 'Ghaziabad', 'Rajkot', 'Meerut', 'Kalyan-Dombivli', 'Vasai-Virar', 'Varanasi', 'Srinagar', 'Dhanbad', 'Jodhpur', 'Amritsar', 'Raipur', 'Allahabad', 'Jabalpur', 'Gwalior', 'Coimbatore', 'Vijayawada', 'Madurai', 'Guwahati', 'Chandigarh', 'Hubli-Dharwad', 'Mysore', 'Tiruchirappalli', 'Bareilly', 'Aligarh', 'Tiruppur', 'Moradabad', 'Jalandhar', 'Bhubaneswar'];
+        const states = ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'West Bengal', 'Maharashtra', 'Telangana', 'Gujarat', 'Rajasthan', 'Gujarat', 'Uttar Pradesh', 'Uttar Pradesh', 'Maharashtra', 'Bihar', 'Madhya Pradesh', 'Maharashtra', 'Madhya Pradesh', 'Andhra Pradesh', 'Gujarat', 'Tamil Nadu', 'Maharashtra', 'Haryana', 'Uttar Pradesh', 'Gujarat', 'Uttar Pradesh', 'Maharashtra', 'Maharashtra', 'Uttar Pradesh', 'Jammu and Kashmir', 'Jharkhand', 'Rajasthan', 'Punjab', 'Chhattisgarh', 'Uttar Pradesh', 'Madhya Pradesh', 'Madhya Pradesh', 'Tamil Nadu', 'Andhra Pradesh', 'Tamil Nadu', 'Assam', 'Chandigarh', 'Karnataka', 'Karnataka', 'Tamil Nadu', 'Uttar Pradesh', 'Uttar Pradesh', 'Tamil Nadu', 'Uttar Pradesh', 'Punjab', 'Odisha'];
+        const platforms = ['Shopify', 'WooCommerce', 'Magento', 'BigCommerce', 'Shopify', 'WooCommerce'];
         const statuses = ['Active', 'Active', 'Active', 'Active', 'Inactive', 'Password Protected'];
         const companySizes = ['1-10', '11-50', '51-200', '201-1000', '1000+'];
 
@@ -383,18 +374,18 @@
         let selectedRows = new Set();
         let currentFilters = {
             search: '',
-            country: 'All',
+            country: 'India',
             platform: 'All',
             status: 'All',
             companySize: 'All'
         };
 
-        // Generate 600 entries per category
+        // Generate 1000 unique entries per category
         function generateExtendedData(category) {
             const data = businessData[category];
             const extended = [];
             
-            for (let i = 0; i < 600; i++) {
+            for (let i = 0; i < 1000; i++) {
                 const baseIndex = i % data.names.length;
                 const cityIndex = i % cities.length;
                 const storeNumber = Math.floor(i / data.names.length) + 1;
@@ -407,23 +398,24 @@
                 else if (employees <= 1000) companySize = '201-1000';
                 else companySize = '1000+';
                 
+                // Create unique variations for each store
+                const uniqueSuffix = storeNumber > 1 ? ` ${storeNumber}` : '';
+                const domainSuffix = storeNumber > 1 ? `${storeNumber}` : '';
+                
                 extended.push({
                     id: i + 1,
-                    domain: `www.${data.domains[baseIndex]}`,
-                    merchant: data.names[baseIndex] + (storeNumber > 1 ? ` Store ${storeNumber}` : ''),
+                    domain: `${data.domains[baseIndex].replace('.com', '')}${domainSuffix}.com`,
+                    merchant: data.names[baseIndex] + uniqueSuffix,
                     city: cities[cityIndex],
                     state: states[cityIndex],
-                    country: countries[i % countries.length],
-                    price: `INR ₹${(Math.random() * 5000 + 500).toFixed(2)}`,
+                    country: 'India',
+                    price: `₹${(Math.random() * 5000 + 500).toFixed(0)}`,
                     platform: platforms[i % platforms.length],
-                    rank: Math.floor(Math.random() * 10000) + 1,
+                    rank: Math.floor(Math.random() * 50000) + 1,
                     status: statuses[i % statuses.length],
-                    sales: `USD ${(Math.random() * 1000000 + 100000).toFixed(2)}`,
-                    emails: `contact@${data.domains[baseIndex]}`,
-                    phones: `+91 ${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-                    instagram: data.names[baseIndex].toLowerCase().replace(/\s+/g, '').replace(/'/g, ''),
-                    facebook: data.names[baseIndex].toLowerCase().replace(/\s+/g, '').replace(/'/g, ''),
-                    whatsapp: Math.floor(Math.random() * 9000000000) + 1000000000,
+                    sales: `${(Math.random() * 1000000 + 10000).toFixed(0)}`,
+                    emails: `contact@${data.domains[baseIndex].replace('.com', '')}${domainSuffix}.com`,
+                    phones: `+91-${Math.floor(Math.random() * 90000) + 10000}-${Math.floor(Math.random() * 90000) + 10000}`,
                     employees: employees,
                     companySize: companySize
                 });
@@ -469,9 +461,9 @@
                     <td class="px-4 py-3 text-sm text-gray-500 col-state">${item.state}</td>
                     <td class="px-4 py-3 text-sm text-gray-500 col-price">${item.price}</td>
                     <td class="px-4 py-3 text-sm text-gray-500 col-platform">${item.platform}</td>
-                    <td class="px-4 py-3 text-sm text-gray-500 col-rank">${item.rank}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-rank">#${item.rank}</td>
                     <td class="px-4 py-3 text-sm col-status">
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.status === 'Active' ? 'bg-green-100 text-green-800' : item.status === 'Inactive' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
                             ${item.status}
                         </span>
                     </td>
@@ -533,14 +525,11 @@
             currentPage = 1;
             selectedRows.clear();
             
-            document.getElementById('statusText').textContent = `✅ ${currentCategory} records loaded from India`;
-            document.getElementById('driveDescription').textContent = `Complete ${currentCategory} dataset (600 records)`;
-            
             showLoading();
             await new Promise(resolve => setTimeout(resolve, 2000));
             
             allData = generateExtendedData(currentCategory);
-            filteredData = [...allData];
+            applyAllFilters();
             
             hideLoading();
             renderTable();
@@ -552,8 +541,9 @@
             const totalPages = Math.ceil(filteredData.length / itemsPerPage);
             
             if (currentPage < totalPages) {
+                isLoading = true;
                 showLoading();
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 currentPage++;
                 hideLoading();
                 renderTable();
@@ -567,7 +557,7 @@
             if (currentPage > 1) {
                 isLoading = true;
                 showLoading();
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 currentPage--;
                 hideLoading();
                 renderTable();
@@ -583,7 +573,7 @@
             
             isLoading = true;
             showLoading();
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
             currentPage = page;
             hideLoading();
             renderTable();
@@ -623,60 +613,56 @@
             currentFilters = { search: searchTerm, country, platform, status, companySize };
             
             filteredData = allData.filter(item => {
-                // Search filter
                 const matchesSearch = searchTerm === '' || 
                     item.domain.toLowerCase().includes(searchTerm) ||
                     item.merchant.toLowerCase().includes(searchTerm);
                 
-                // Country filter
-                const matchesCountry = country === 'All' || item.country === country;
-                
-                // Platform filter
+                const matchesCountry = country === 'All' || country === 'India';
                 const matchesPlatform = platform === 'All' || item.platform === platform;
-                
-                // Status filter
                 const matchesStatus = status === 'All' || item.status === status;
-                
-                // Company size filter
                 const matchesCompanySize = companySize === 'All' || item.companySize === companySize;
                 
                 return matchesSearch && matchesCountry && matchesPlatform && matchesStatus && matchesCompanySize;
             });
             
             currentPage = 1;
-            renderTable();
             updateFilterCounts();
         }
 
         function filterData() {
             applyAllFilters();
+            renderTable();
         }
 
         function filterByCountry() {
             applyAllFilters();
+            renderTable();
         }
 
         function filterByPlatform() {
             applyAllFilters();
+            renderTable();
         }
 
         function filterByStatus() {
             applyAllFilters();
+            renderTable();
         }
 
         function filterByCompanySize() {
             applyAllFilters();
+            renderTable();
         }
 
         function updateFilterCounts() {
-            // Update status text with filter info
-            let statusText = `✅ ${currentCategory} records loaded from ${currentFilters.country === 'All' ? 'All Countries' : currentFilters.country}`;
+            let statusText = `✅ ${currentCategory} records loaded from India`;
             
-            if (Object.values(currentFilters).some(filter => filter !== 'All' && filter !== '')) {
+            if (filteredData.length !== allData.length) {
                 statusText += ` (${filteredData.length} filtered)`;
             }
             
             document.getElementById('statusText').textContent = statusText;
+            document.getElementById('driveDescription').textContent = `Complete ${currentCategory} dataset (1000 records)`;
         }
 
         function selectAll(checkbox) {
@@ -738,11 +724,9 @@
         }
 
         function useCurrentViewColumns() {
-            // Reset all export checkboxes
             const exportCheckboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
             exportCheckboxes.forEach(cb => cb.checked = false);
             
-            // Check only visible columns
             const visibleCheckboxes = document.querySelectorAll('#columnFilter input[type="checkbox"]');
             visibleCheckboxes.forEach(cb => {
                 const columnName = cb.id.replace('col-', '');
@@ -767,7 +751,6 @@
         }
 
         function exportCurrentView() {
-            // Get selected columns
             const selectedColumns = [];
             const columnMap = {
                 'exp-domain': 'domain',
@@ -782,9 +765,6 @@
                 'exp-sales': 'sales',
                 'exp-emails': 'emails',
                 'exp-phones': 'phones',
-                'exp-instagram': 'instagram',
-                'exp-facebook': 'facebook',
-                'exp-whatsapp': 'whatsapp',
                 'exp-companysize': 'companySize',
                 'exp-employees': 'employees'
             };
@@ -802,9 +782,6 @@
                 'sales': 'Estimated Sales',
                 'emails': 'Emails',
                 'phones': 'Phones',
-                'instagram': 'Instagram',
-                'facebook': 'Facebook',
-                'whatsapp': 'WhatsApp',
                 'companySize': 'Company Size',
                 'employees': 'Employee Count'
             };
@@ -821,26 +798,22 @@
                 return;
             }
 
-            // Determine data to export
             const dataToExport = selectedRows.size > 0 
                 ? allData.filter(item => selectedRows.has(item.id))
                 : filteredData;
 
-            // Generate CSV content
             const headers = selectedColumns.map(col => headerMap[col]);
             let csvContent = headers.join(',') + '\n';
 
             dataToExport.forEach(item => {
                 const row = selectedColumns.map(col => {
                     const value = item[col] || '';
-                    // Escape quotes and wrap in quotes if contains comma
                     const escapedValue = value.toString().replace(/"/g, '""');
                     return value.includes(',') ? `"${escapedValue}"` : escapedValue;
                 });
                 csvContent += row.join(',') + '\n';
             });
 
-            // Download CSV
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -853,7 +826,6 @@
 
             closeExportModal();
             
-            // Show success message
             const originalText = document.getElementById('statusText').textContent;
             document.getElementById('statusText').textContent = `✅ Exported ${dataToExport.length} records with ${selectedColumns.length} columns`;
             document.getElementById('statusText').className = 'text-sm text-blue-600';
@@ -864,25 +836,16 @@
             }, 3000);
         }
 
-        // Add event listeners for export column checkboxes
+        // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize data
             allData = generateExtendedData(currentCategory);
-            filteredData = [...allData];
+            applyAllFilters();
             renderTable();
 
-            // Add event listeners for export checkboxes
             const exportCheckboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
             exportCheckboxes.forEach(cb => {
                 cb.addEventListener('change', updateExportButtonText);
             });
-        });
-
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            allData = generateExtendedData(currentCategory);
-            filteredData = [...allData];
-            renderTable();
         });
     </script>
 </body>
