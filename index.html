@@ -1,4 +1,9 @@
-<label class="flex items-center text-sm">
+function updateExportButtonText() {
+            const checkboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const recordCount = selectedRows.size > 0 ? selectedRows.size : filteredData.length;
+            
+            document.getElementById('exportBtnText').innerHTML = `Download <span class="font-semibold">${recordCount}</span> records with ${checkedCount} columns - Export CSV                            <label class="flex items-center text-sm">
                                 <input type="checkbox" id="exp-country" class="mr-2"> Country
                             </label>
                             <label class="flex items-center text-sm">
@@ -17,15 +22,22 @@
         .loading { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .modal { backdrop-filter: blur(4px); }
+        
+        /* Hide unwanted filter elements */
+        .export-filter-item:not(.export-column-item) { display: none !important; }
+        
+        /* Custom styles for proper layout */
+        .sidebar-filters .filter-section { margin-bottom: 1.5rem; }
+        .export-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
     </style>
 </head>
 <body class="bg-gray-50">
     <div id="app">
         <div class="flex min-h-screen">
             <!-- Sidebar -->
-            <div class="w-64 bg-white shadow-sm p-4">
+            <div class="w-64 bg-white shadow-sm p-4 sidebar-filters">
                 <div class="space-y-6">
-                    <div>
+                    <div class="filter-section">
                         <button class="text-blue-600 text-sm font-medium">Advanced</button>
                         <div class="flex items-center space-x-2 mt-2">
                             <span class="text-yellow-400">⭐</span>
@@ -37,7 +49,7 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div class="filter-section">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
@@ -47,7 +59,7 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div class="filter-section">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
                         <select id="categorySelect" onchange="changeCategory()" 
                                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -57,7 +69,7 @@
                         </select>
                     </div>
 
-                    <div>
+                    <div class="filter-section">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
                         <select id="countrySelect" onchange="filterByCountry()" 
                                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -69,13 +81,11 @@
                             <option value="Australia">Australia</option>
                         </select>
                         <div class="mt-2 text-xs text-gray-500">
-                            <div>India: 600 records</div>
-                            <div>USA: 200 records</div>
-                            <div>UK: 150 records</div>
+                            <div id="countryStats">India: 480, USA: 60, UK: 60</div>
                         </div>
                     </div>
 
-                    <div>
+                    <div class="filter-section">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
                         <select id="platformSelect" onchange="filterByPlatform()" 
                                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -84,16 +94,14 @@
                             <option value="WooCommerce">WooCommerce</option>
                             <option value="Magento">Magento</option>
                             <option value="BigCommerce">BigCommerce</option>
-                            <option value="Custom">Custom</option>
                         </select>
                         <div class="mt-2 text-xs text-gray-500">
                             <div>WooCommerce: 4,602,082</div>
                             <div>Shopify: 3,187,025</div>
-                            <button class="text-blue-600">306 more platforms available</button>
                         </div>
                     </div>
 
-                    <div>
+                    <div class="filter-section">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                         <select id="statusSelect" onchange="filterByStatus()" 
                                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -101,16 +109,14 @@
                             <option value="Active" selected>Active</option>
                             <option value="Inactive">Inactive</option>
                             <option value="Password Protected">Password Protected</option>
-                            <option value="Under Construction">Under Construction</option>
                         </select>
                         <div class="mt-2 text-xs text-gray-500">
                             <div>Active: 7,189,832</div>
-                            <div>Password Protected: 599,275</div>
                             <div>Inactive: 245,123</div>
                         </div>
                     </div>
 
-                    <div>
+                    <div class="filter-section">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
                         <select id="companySizeSelect" onchange="filterByCompanySize()" 
                                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -124,7 +130,6 @@
                         <div class="mt-2 text-xs text-gray-500">
                             <div>Small (1-50): 2,456,789</div>
                             <div>Medium (51-200): 1,234,567</div>
-                            <div>Large (200+): 987,654</div>
                         </div>
                     </div>
 
@@ -262,7 +267,7 @@
                 <button onclick="exportToDrive()" class="w-full bg-green-600 text-white py-3 px-4 rounded hover:bg-green-700 transition-colors text-left">
                     <div class="font-medium">🔗 Access Full Dataset via Google Drive</div>
                     <div class="text-sm opacity-90" id="driveDescription">
-                        Complete Fashion & Apparel dataset (600 records)
+                        Complete Fashion & Apparel dataset (<span id="totalRecordsCount">600</span> records)
                     </div>
                 </button>
                 
@@ -533,17 +538,30 @@
             currentPage = 1;
             selectedRows.clear();
             
-            document.getElementById('statusText').textContent = `✅ ${currentCategory} records loaded from India`;
-            document.getElementById('driveDescription').textContent = `Complete ${currentCategory} dataset (600 records)`;
+            // Reset filters
+            document.getElementById('countrySelect').value = 'India';
+            document.getElementById('platformSelect').value = 'Shopify';
+            document.getElementById('statusSelect').value = 'Active';
+            document.getElementById('companySizeSelect').value = 'All';
+            document.getElementById('searchInput').value = '';
+            
+            currentFilters = {
+                search: '',
+                country: 'India',
+                platform: 'Shopify', 
+                status: 'Active',
+                companySize: 'All'
+            };
             
             showLoading();
             await new Promise(resolve => setTimeout(resolve, 2000));
             
             allData = generateExtendedData(currentCategory);
-            filteredData = [...allData];
+            applyAllFilters();
             
             hideLoading();
             renderTable();
+            updateFilterCounts();
         }
 
         async function nextPage() {
@@ -722,7 +740,29 @@
         function updateExportButtonText() {
             const checkboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
             const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-            document.getElementById('exportBtnText').textContent = `${checkedCount} columns selected - Export CSV`;
+            const recordCount = selectedRows.size > 0 ? selectedRows.size : filteredData.length;
+            
+            document.getElementById('exportBtnText').innerHTML = `Download <span class="font-semibold">${recordCount}</span> records with ${checkedCount} columns - Export CSV`;
+            document.getElementById('exportRecordCount').textContent = recordCount;
+            document.getElementById('totalRecordsCount').textContent = allData.length;
+        }
+
+        function updateFilterCounts() {
+            // Update status text with filter info
+            let statusText = `✅ ${currentCategory} records loaded from ${currentFilters.country === 'All' ? 'All Countries' : currentFilters.country}`;
+            
+            if (Object.values(currentFilters).some(filter => filter !== 'All' && filter !== '')) {
+                statusText += ` (${filteredData.length} filtered)`;
+            }
+            
+            document.getElementById('statusText').textContent = statusText;
+            
+            // Update drive description
+            document.getElementById('driveDescription').innerHTML = `Complete ${currentCategory} dataset (<span id="totalRecordsCount">${allData.length}</span> records)`;
+            
+            // Update export button
+            updateExportButtonText();
+        }
         }
 
         function selectAllExportColumns() {
@@ -864,25 +904,30 @@
             }, 3000);
         }
 
-        // Add event listeners for export column checkboxes
+        // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize data
+            // Generate initial data
             allData = generateExtendedData(currentCategory);
-            filteredData = [...allData];
+            
+            // Set initial filters to match default selections
+            currentFilters = {
+                search: '',
+                country: 'India',
+                platform: 'Shopify',
+                status: 'Active', 
+                companySize: 'All'
+            };
+            
+            // Apply initial filters
+            applyAllFilters();
             renderTable();
+            updateFilterCounts();
 
             // Add event listeners for export checkboxes
             const exportCheckboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
             exportCheckboxes.forEach(cb => {
                 cb.addEventListener('change', updateExportButtonText);
             });
-        });
-
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            allData = generateExtendedData(currentCategory);
-            filteredData = [...allData];
-            renderTable();
         });
     </script>
 </body>
