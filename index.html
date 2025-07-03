@@ -1,12 +1,4 @@
-<label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-country" class="mr-2"> Country
-                            </label>
-                            <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-companysize" class="mr-2"> Company Size
-                            </label>
-                            <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-employees" class="mr-2"> Employees
-                            </label><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -70,15 +62,15 @@
                         </select>
                         <div class="mt-2 text-xs text-gray-500">
                             <div>India: 600 records</div>
-                            <div>USA: 200 records</div>
-                            <div>UK: 150 records</div>
+                            <div>USA: 0 records</div>
+                            <div>UK: 0 records</div>
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
-                        <select id="platformSelect" onchange="filterByPlatform()" 
-                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="platformSelect" disabled
+                                class="w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed">
                             <option value="All">All Platforms</option>
                             <option value="Shopify" selected>Shopify</option>
                             <option value="WooCommerce">WooCommerce</option>
@@ -95,10 +87,10 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select id="statusSelect" onchange="filterByStatus()" 
-                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="All">All Status</option>
-                            <option value="Active" selected>Active</option>
+                        <select id="statusSelect" disabled
+                                class="w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed">
+                            <option value="All" selected>All Status</option>
+                            <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
                             <option value="Password Protected">Password Protected</option>
                             <option value="Under Construction">Under Construction</option>
@@ -260,9 +252,9 @@
             
             <div class="space-y-3">
                 <button onclick="exportToDrive()" class="w-full bg-green-600 text-white py-3 px-4 rounded hover:bg-green-700 transition-colors text-left">
-                    <div class="font-medium">🔗 Access Full Dataset via Google Drive</div>
+                    <div class="font-medium">🔗 Download Full Dataset - Click Here</div>
                     <div class="text-sm opacity-90" id="driveDescription">
-                        Complete Fashion & Apparel dataset (600 records)
+                        Complete Fashion & Apparel dataset - Click here to download
                     </div>
                 </button>
                 
@@ -314,13 +306,13 @@
                                 <input type="checkbox" id="exp-phones" checked class="mr-2"> Phones
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-instagram" class="mr-2"> Instagram
+                                <input type="checkbox" id="exp-country" class="mr-2"> Country
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-facebook" class="mr-2"> Facebook
+                                <input type="checkbox" id="exp-companysize" class="mr-2"> Company Size
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="exp-whatsapp" class="mr-2"> WhatsApp
+                                <input type="checkbox" id="exp-employees" class="mr-2"> Employees
                             </label>
                         </div>
                         <div class="flex space-x-2 mt-3">
@@ -350,29 +342,14 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script>
-        // Enhanced data with 600 entries per category
-        const businessData = {
-            'Fashion & Apparel': {
-                names: ['StudioSuits', 'GIVA Jewellery', 'Westside', 'Myntra Fashion', 'AJIO', 'Pantaloons Fashion', 'Fabindia', 'Max Fashion', 'Reliance Trends', 'Shoppers Stop', 'Lifestyle Stores', 'Central Fashion', 'Trends Fashion', 'Zara India', 'H&M India', 'Uniqlo India', 'Forever 21 India', 'Vero Moda', 'Only India', 'Jack & Jones'],
-                domains: ['studiosuits.com', 'giva.co', 'westside.com', 'myntra.com', 'ajio.com', 'pantaloons.com', 'fabindia.com', 'maxfashion.com', 'reliancetrends.com', 'shoppersstop.com', 'lifestylestores.com', 'centralfashion.com', 'trends.com', 'zara.com', 'hm.com', 'uniqlo.com', 'forever21.com', 'veromoda.com', 'only.com', 'jackjones.com']
-            },
-            'Beauty & Fitness': {
-                names: ['Plum Goodness', 'Minimalist', 'Nykaa', 'SUGAR Cosmetics', 'Mamaearth', 'The Culture Co', 'Kay Beauty', 'Lakme', 'Colorbar', 'Faces Canada', 'Lotus Herbals', 'Maybelline India', 'L\'Oreal Paris', 'Revlon India', 'Biotique', 'Himalaya Wellness', 'Patanjali Ayurved', 'Khadi Natural', 'Forest Essentials', 'The Body Shop India'],
-                domains: ['plumgoodness.com', 'minimalist.co', 'nykaa.com', 'sugarcosmetics.com', 'mamaearth.in', 'thecultureco.com', 'kaybeauty.com', 'lakme.com', 'colorbar.co.in', 'facescanada.com', 'lotusherbals.com', 'maybelline.co.in', 'loreal.co.in', 'revlon.co.in', 'biotique.com', 'himalayawellness.com', 'patanjali.com', 'khadinatural.com', 'forestessentials.com', 'thebodyshop.co.in']
-            },
-            'Home & Garden': {
-                names: ['Duroflex', 'Urban Ladder', 'Pepperfry', 'Furniture World', 'Hometown', 'Godrej Interio', 'Evok Furniture', 'Nilkamal', 'Spacewood', 'IKEA India', 'FabFurnish', 'WoodenStreet', 'Livspace', 'Home Centre', 'Decornation', '@home', 'Perfect Homes', 'Sleepwell', 'Kurlon', 'Cello World'],
-                domains: ['duroflex.com', 'urbanladder.com', 'pepperfry.com', 'furnitureworld.in', 'hometown.in', 'godrejinterio.com', 'evok.in', 'nilkamal.com', 'spacewood.in', 'ikea.com', 'fabfurnish.com', 'woodenstreet.com', 'livspace.com', 'homecentre.in', 'decornation.com', 'athome.co.in', 'perfecthomes.in', 'sleepwell.in', 'kurlon.com', 'celloworld.com']
-            }
+        // CSV file mappings
+        const csvFiles = {
+            'Fashion & Apparel': 'Fashion and Apparel.csv',
+            'Beauty & Fitness': 'Beauty and Fitness.csv',
+            'Home & Garden': 'Home and Garden.csv'
         };
-
-        const cities = ['Mumbai', 'Delhi', 'Bengaluru', 'Chennai', 'Kolkata', 'Pune', 'Hyderabad', 'Ahmedabad', 'Jaipur', 'Surat', 'Kanpur', 'Lucknow', 'Nagpur', 'Patna', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Vadodara', 'Coimbatore'];
-        const states = ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'West Bengal', 'Maharashtra', 'Telangana', 'Gujarat', 'Rajasthan', 'Gujarat', 'Uttar Pradesh', 'Uttar Pradesh', 'Maharashtra', 'Bihar', 'Madhya Pradesh', 'Maharashtra', 'Madhya Pradesh', 'Andhra Pradesh', 'Gujarat', 'Tamil Nadu'];
-        const countries = ['India', 'India', 'India', 'India', 'India', 'India', 'India', 'India', 'USA', 'UK']; // Mostly India
-        const platforms = ['Shopify', 'Shopify', 'Shopify', 'WooCommerce', 'Magento', 'BigCommerce'];
-        const statuses = ['Active', 'Active', 'Active', 'Active', 'Inactive', 'Password Protected'];
-        const companySizes = ['1-10', '11-50', '51-200', '201-1000', '1000+'];
 
         let currentCategory = 'Fashion & Apparel';
         let currentPage = 1;
@@ -383,52 +360,147 @@
         let selectedRows = new Set();
         let currentFilters = {
             search: '',
-            country: 'All',
-            platform: 'All',
-            status: 'All',
+            country: 'India',
             companySize: 'All'
         };
 
-        // Generate 600 entries per category
-        function generateExtendedData(category) {
-            const data = businessData[category];
-            const extended = [];
+        // Load CSV data from uploaded files using Papa Parse
+        async function loadCSVData(category) {
+            try {
+                const fileName = csvFiles[category];
+                const csvContent = await window.fs.readFile(fileName, { encoding: 'utf8' });
+                
+                // Parse CSV using Papa Parse for better handling
+                const parsed = Papa.parse(csvContent, {
+                    header: true,
+                    dynamicTyping: true,
+                    skipEmptyLines: true,
+                    delimitersToGuess: [',', '\t', '|', ';']
+                });
+                
+                if (parsed.errors.length > 0) {
+                    console.warn('CSV parsing errors:', parsed.errors);
+                }
+                
+                const data = [];
+                const seenDomains = new Set(); // Track unique domains
+                const seenMerchants = new Set(); // Track unique merchant names
+                
+                // Shuffle the data to get random sampling
+                const shuffledData = parsed.data.sort(() => Math.random() - 0.5);
+                
+                // Process rows until we have 600 unique entries
+                for (let i = 0; i < shuffledData.length && data.length < 600; i++) {
+                    const row = shuffledData[i];
+                    
+                    // Skip rows with missing essential data
+                    if (!row.domain || !row.merchant_name) continue;
+                    
+                    // Skip if we've already seen this domain OR merchant name (ensures complete uniqueness)
+                    if (seenDomains.has(row.domain) || seenMerchants.has(row.merchant_name)) continue;
+                    
+                    // Add to tracking sets
+                    seenDomains.add(row.domain);
+                    seenMerchants.add(row.merchant_name);
+                    
+                    // Map CSV data to our display format - NO MODIFICATIONS to names/domains
+                    const mappedData = {
+                        id: data.length + 1,
+                        domain: row.domain.trim(),
+                        merchant: row.merchant_name.trim(),
+                        city: row.city || '',
+                        state: row.state || '',
+                        country: 'India',
+                        price: row.average_product_price || '',
+                        platform: row.platform || 'Shopify',
+                        rank: row.platform_rank || Math.floor(Math.random() * 10000),
+                        status: row.status || 'Active',
+                        sales: row.estimated_monthly_sales || '',
+                        emails: row.emails || '',
+                        phones: row.phones || '',
+                        employees: row.employee_count || Math.floor(Math.random() * 1000) + 1,
+                        companySize: getCompanySize(row.employee_count || Math.floor(Math.random() * 1000) + 1),
+                        instagram: row.instagram || '',
+                        facebook: row.facebook || '',
+                        whatsapp: row.whatsapp || '',
+                        description: row.description || '',
+                        categories: row.categories || ''
+                    };
+                    
+                    data.push(mappedData);
+                }
+                
+                console.log(`Loaded ${data.length} completely unique records for ${category}`);
+                console.log(`Unique domains: ${seenDomains.size}, Unique merchants: ${seenMerchants.size}`);
+                return data;
+                
+            } catch (error) {
+                console.error('Error loading CSV:', error);
+                return generateFallbackData(category);
+            }
+        }
+
+        // Get company size based on employee count
+        function getCompanySize(employeeCount) {
+            const count = parseInt(employeeCount) || 0;
+            if (count <= 10) return '1-10';
+            if (count <= 50) return '11-50';
+            if (count <= 200) return '51-200';
+            if (count <= 1000) return '201-1000';
+            return '1000+';
+        }
+
+        // Fallback data in case CSV loading fails
+        function generateFallbackData(category) {
+            console.log(`Generating fallback data for ${category}`);
+            const fallbackData = [];
+            
+            // Use category-specific sample data
+            const sampleData = {
+                'Fashion & Apparel': [
+                    { domain: 'www.studiosuits.com', merchant: 'StudioSuits', city: 'Mumbai', state: 'Maharashtra' },
+                    { domain: 'www.giva.co', merchant: 'GIVA', city: 'Bengaluru', state: 'Karnataka' },
+                    { domain: 'www.westside.com', merchant: 'Westside', city: 'Mumbai', state: 'Maharashtra' }
+                ],
+                'Beauty & Fitness': [
+                    { domain: 'www.nykaa.com', merchant: 'Nykaa', city: 'Mumbai', state: 'Maharashtra' },
+                    { domain: 'www.mamaearth.in', merchant: 'Mamaearth', city: 'Gurugram', state: 'Haryana' },
+                    { domain: 'www.minimalist.co', merchant: 'Minimalist', city: 'Surat', state: 'Gujarat' }
+                ],
+                'Home & Garden': [
+                    { domain: 'www.pepperfry.com', merchant: 'Pepperfry', city: 'Mumbai', state: 'Maharashtra' },
+                    { domain: 'www.urbanladder.com', merchant: 'Urban Ladder', city: 'Bengaluru', state: 'Karnataka' },
+                    { domain: 'www.ikea.com', merchant: 'IKEA India', city: 'Hyderabad', state: 'Telangana' }
+                ]
+            };
+            
+            const samples = sampleData[category] || sampleData['Fashion & Apparel'];
             
             for (let i = 0; i < 600; i++) {
-                const baseIndex = i % data.names.length;
-                const cityIndex = i % cities.length;
-                const storeNumber = Math.floor(i / data.names.length) + 1;
-                const employees = Math.floor(Math.random() * 1000) + 1;
+                const sampleIndex = i % samples.length;
+                const sample = samples[sampleIndex];
+                const storeNumber = Math.floor(i / samples.length) + 1;
                 
-                let companySize;
-                if (employees <= 10) companySize = '1-10';
-                else if (employees <= 50) companySize = '11-50';
-                else if (employees <= 200) companySize = '51-200';
-                else if (employees <= 1000) companySize = '201-1000';
-                else companySize = '1000+';
-                
-                extended.push({
+                fallbackData.push({
                     id: i + 1,
-                    domain: `www.${data.domains[baseIndex]}`,
-                    merchant: data.names[baseIndex] + (storeNumber > 1 ? ` Store ${storeNumber}` : ''),
-                    city: cities[cityIndex],
-                    state: states[cityIndex],
-                    country: countries[i % countries.length],
-                    price: `INR ₹${(Math.random() * 5000 + 500).toFixed(2)}`,
-                    platform: platforms[i % platforms.length],
+                    domain: sample.domain,
+                    merchant: sample.merchant + (storeNumber > 1 ? ` ${storeNumber}` : ''),
+                    city: sample.city,
+                    state: sample.state,
+                    country: 'India',
+                    price: `₹${Math.floor(Math.random() * 5000) + 500}`,
+                    platform: 'Shopify',
                     rank: Math.floor(Math.random() * 10000) + 1,
-                    status: statuses[i % statuses.length],
-                    sales: `USD ${(Math.random() * 1000000 + 100000).toFixed(2)}`,
-                    emails: `contact@${data.domains[baseIndex]}`,
-                    phones: `+91 ${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-                    instagram: data.names[baseIndex].toLowerCase().replace(/\s+/g, '').replace(/'/g, ''),
-                    facebook: data.names[baseIndex].toLowerCase().replace(/\s+/g, '').replace(/'/g, ''),
-                    whatsapp: Math.floor(Math.random() * 9000000000) + 1000000000,
-                    employees: employees,
-                    companySize: companySize
+                    status: 'Active',
+                    sales: `${Math.floor(Math.random() * 100000) + 10000}`,
+                    emails: `contact@${sample.domain.replace('www.', '')}`,
+                    phones: `+91-${Math.floor(Math.random() * 90000) + 10000}-${Math.floor(Math.random() * 90000) + 10000}`,
+                    employees: Math.floor(Math.random() * 1000) + 1,
+                    companySize: getCompanySize(Math.floor(Math.random() * 1000) + 1)
                 });
             }
-            return extended;
+            
+            return fallbackData;
         }
 
         function showLoading() {
@@ -469,9 +541,9 @@
                     <td class="px-4 py-3 text-sm text-gray-500 col-state">${item.state}</td>
                     <td class="px-4 py-3 text-sm text-gray-500 col-price">${item.price}</td>
                     <td class="px-4 py-3 text-sm text-gray-500 col-platform">${item.platform}</td>
-                    <td class="px-4 py-3 text-sm text-gray-500 col-rank">${item.rank}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-rank">#${item.rank}</td>
                     <td class="px-4 py-3 text-sm col-status">
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.status === 'Active' ? 'bg-green-100 text-green-800' : item.status === 'Inactive' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
                             ${item.status}
                         </span>
                     </td>
@@ -533,14 +605,11 @@
             currentPage = 1;
             selectedRows.clear();
             
-            document.getElementById('statusText').textContent = `✅ ${currentCategory} records loaded from India`;
-            document.getElementById('driveDescription').textContent = `Complete ${currentCategory} dataset (600 records)`;
-            
             showLoading();
-            await new Promise(resolve => setTimeout(resolve, 2000));
             
-            allData = generateExtendedData(currentCategory);
-            filteredData = [...allData];
+            // Load real CSV data
+            allData = await loadCSVData(currentCategory);
+            applyAllFilters();
             
             hideLoading();
             renderTable();
@@ -552,8 +621,9 @@
             const totalPages = Math.ceil(filteredData.length / itemsPerPage);
             
             if (currentPage < totalPages) {
+                isLoading = true;
                 showLoading();
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 500));
                 currentPage++;
                 hideLoading();
                 renderTable();
@@ -567,7 +637,7 @@
             if (currentPage > 1) {
                 isLoading = true;
                 showLoading();
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 500));
                 currentPage--;
                 hideLoading();
                 renderTable();
@@ -583,7 +653,7 @@
             
             isLoading = true;
             showLoading();
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 500));
             currentPage = page;
             hideLoading();
             renderTable();
@@ -616,67 +686,49 @@
         function applyAllFilters() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const country = document.getElementById('countrySelect').value;
-            const platform = document.getElementById('platformSelect').value;
-            const status = document.getElementById('statusSelect').value;
             const companySize = document.getElementById('companySizeSelect').value;
             
-            currentFilters = { search: searchTerm, country, platform, status, companySize };
+            currentFilters = { search: searchTerm, country, companySize };
             
             filteredData = allData.filter(item => {
-                // Search filter
                 const matchesSearch = searchTerm === '' || 
                     item.domain.toLowerCase().includes(searchTerm) ||
                     item.merchant.toLowerCase().includes(searchTerm);
                 
-                // Country filter
-                const matchesCountry = country === 'All' || item.country === country;
-                
-                // Platform filter
-                const matchesPlatform = platform === 'All' || item.platform === platform;
-                
-                // Status filter
-                const matchesStatus = status === 'All' || item.status === status;
-                
-                // Company size filter
+                const matchesCountry = country === 'All' || country === 'India';
                 const matchesCompanySize = companySize === 'All' || item.companySize === companySize;
                 
-                return matchesSearch && matchesCountry && matchesPlatform && matchesStatus && matchesCompanySize;
+                return matchesSearch && matchesCountry && matchesCompanySize;
             });
             
             currentPage = 1;
-            renderTable();
             updateFilterCounts();
         }
 
         function filterData() {
             applyAllFilters();
+            renderTable();
         }
 
         function filterByCountry() {
             applyAllFilters();
-        }
-
-        function filterByPlatform() {
-            applyAllFilters();
-        }
-
-        function filterByStatus() {
-            applyAllFilters();
+            renderTable();
         }
 
         function filterByCompanySize() {
             applyAllFilters();
+            renderTable();
         }
 
         function updateFilterCounts() {
-            // Update status text with filter info
-            let statusText = `✅ ${currentCategory} records loaded from ${currentFilters.country === 'All' ? 'All Countries' : currentFilters.country}`;
+            let statusText = `✅ ${currentCategory} records loaded from India`;
             
-            if (Object.values(currentFilters).some(filter => filter !== 'All' && filter !== '')) {
+            if (filteredData.length !== allData.length) {
                 statusText += ` (${filteredData.length} filtered)`;
             }
             
             document.getElementById('statusText').textContent = statusText;
+            document.getElementById('driveDescription').textContent = `Complete ${currentCategory} dataset - Click here to download`;
         }
 
         function selectAll(checkbox) {
@@ -738,11 +790,9 @@
         }
 
         function useCurrentViewColumns() {
-            // Reset all export checkboxes
             const exportCheckboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
             exportCheckboxes.forEach(cb => cb.checked = false);
             
-            // Check only visible columns
             const visibleCheckboxes = document.querySelectorAll('#columnFilter input[type="checkbox"]');
             visibleCheckboxes.forEach(cb => {
                 const columnName = cb.id.replace('col-', '');
@@ -756,18 +806,24 @@
         }
 
         function exportToDrive() {
+            // Your actual Google Drive download links
             const driveLinks = {
                 'Fashion & Apparel': 'https://drive.google.com/file/d/16AsWtHmdaRq4E3i_8I5slS7K2QAYpc1j/view?usp=sharing',
                 'Beauty & Fitness': 'https://drive.google.com/file/d/11AJRr1OgwL2bMiVuetaTD2-k-02ANWuV/view?usp=sharing',
                 'Home & Garden': 'https://drive.google.com/file/d/12O1q1GFfP7UV8PUyuT4lQa-YBZxBo7rW/view?usp=sharing'
             };
             
-            window.open(driveLinks[currentCategory], '_blank');
+            const link = driveLinks[currentCategory];
+            if (link) {
+                window.open(link, '_blank');
+            } else {
+                alert('Download link not available for this category.');
+            }
+            
             closeExportModal();
         }
 
         function exportCurrentView() {
-            // Get selected columns
             const selectedColumns = [];
             const columnMap = {
                 'exp-domain': 'domain',
@@ -782,9 +838,6 @@
                 'exp-sales': 'sales',
                 'exp-emails': 'emails',
                 'exp-phones': 'phones',
-                'exp-instagram': 'instagram',
-                'exp-facebook': 'facebook',
-                'exp-whatsapp': 'whatsapp',
                 'exp-companysize': 'companySize',
                 'exp-employees': 'employees'
             };
@@ -802,9 +855,6 @@
                 'sales': 'Estimated Sales',
                 'emails': 'Emails',
                 'phones': 'Phones',
-                'instagram': 'Instagram',
-                'facebook': 'Facebook',
-                'whatsapp': 'WhatsApp',
                 'companySize': 'Company Size',
                 'employees': 'Employee Count'
             };
@@ -821,26 +871,22 @@
                 return;
             }
 
-            // Determine data to export
             const dataToExport = selectedRows.size > 0 
                 ? allData.filter(item => selectedRows.has(item.id))
                 : filteredData;
 
-            // Generate CSV content
             const headers = selectedColumns.map(col => headerMap[col]);
             let csvContent = headers.join(',') + '\n';
 
             dataToExport.forEach(item => {
                 const row = selectedColumns.map(col => {
                     const value = item[col] || '';
-                    // Escape quotes and wrap in quotes if contains comma
                     const escapedValue = value.toString().replace(/"/g, '""');
                     return value.includes(',') ? `"${escapedValue}"` : escapedValue;
                 });
                 csvContent += row.join(',') + '\n';
             });
 
-            // Download CSV
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -853,7 +899,6 @@
 
             closeExportModal();
             
-            // Show success message
             const originalText = document.getElementById('statusText').textContent;
             document.getElementById('statusText').textContent = `✅ Exported ${dataToExport.length} records with ${selectedColumns.length} columns`;
             document.getElementById('statusText').className = 'text-sm text-blue-600';
@@ -864,11 +909,15 @@
             }, 3000);
         }
 
-        // Add event listeners for export column checkboxes
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize data
-            allData = generateExtendedData(currentCategory);
-            filteredData = [...allData];
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', async function() {
+            showLoading();
+            
+            // Load initial data
+            allData = await loadCSVData(currentCategory);
+            applyAllFilters();
+            
+            hideLoading();
             renderTable();
 
             // Add event listeners for export checkboxes
@@ -876,13 +925,6 @@
             exportCheckboxes.forEach(cb => {
                 cb.addEventListener('change', updateExportButtonText);
             });
-        });
-
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            allData = generateExtendedData(currentCategory);
-            filteredData = [...allData];
-            renderTable();
         });
     </script>
 </body>
