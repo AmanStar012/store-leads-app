@@ -15,113 +15,82 @@
 </head>
 <body class="bg-gray-50">
   <div id="app" class="flex flex-col lg:flex-row min-h-screen">
-    <!-- Sidebar -->
     <aside class="w-full lg:w-64 bg-white p-4 space-y-6">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-        <select id="categorySelect" onchange="changeCategory()" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <label>Category</label>
+        <select id="categorySelect" onchange="changeCategory()" class="w-full p-2 border rounded">
           <option>Fashion & Apparel</option>
           <option>Beauty & Fitness</option>
           <option>Home & Garden</option>
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
-        <input id="searchInput" oninput="applyFilters()" type="text" placeholder="Search domain or merchant..." class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <label>Search</label>
+        <input id="searchInput" oninput="applyFilters()" class="w-full p-2 border rounded" placeholder="Search domain or merchant" />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-        <select id="filterCountry" onchange="applyFilters()" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+        <label>Country</label>
+        <select id="filterCountry" onchange="applyFilters()" class="w-full p-2 border rounded"></select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
-        <select id="filterPlatform" onchange="applyFilters()" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+        <label>Platform</label>
+        <select id="filterPlatform" onchange="applyFilters()" class="w-full p-2 border rounded"></select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-        <select id="filterStatus" onchange="applyFilters()" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+        <label>Status</label>
+        <select id="filterStatus" onchange="applyFilters()" class="w-full p-2 border rounded"></select>
       </div>
       <div>
-        <h3 class="text-sm font-medium text-gray-700 mb-2">Visible Columns</h3>
+        <h3>Visible Columns</h3>
         <div class="space-y-2 max-h-48 overflow-y-auto">
-          <label class="flex items-center text-sm"><input type="checkbox" id="col-domain" checked onchange="toggleColumn('domain')" class="mr-2">Domain</label>
-          <!-- repeat for all CSV columns -->
+          <label><input type="checkbox" id="col-domain" checked onchange="toggleColumn('domain')" /> Domain</label>
+          <!-- add all other column toggles as needed -->
         </div>
       </div>
     </aside>
-
-    <!-- Main Content -->
     <main class="flex-1 flex flex-col">
       <header class="bg-blue-600 text-white p-4 flex justify-between">
-        <h1 class="text-xl font-semibold">Store Leads</h1>
-        <button onclick="openExportModal()" class="bg-blue-700 px-4 py-2 rounded">EXPORT</button>
+        <h1>Store Leads</h1>
+        <button onclick="openExportModal()" class="bg-blue-700 px-4 py-2 rounded">Export</button>
       </header>
-      <section class="flex-1 p-6">
+      <section class="p-6 flex-1">
         <p id="statusText" class="text-green-600 mb-4"></p>
         <div id="loading" class="hidden flex justify-center py-20">
           <div class="loading w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
         </div>
-        <div id="dataTable" class="hidden bg-white rounded-lg shadow overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="min-w-full">
-              <thead class="bg-gray-50 sticky top-0">
-                <tr>
-                  <th><input type="checkbox" onchange="selectAll(this)"></th>
-                  <th class="col-domain">Domain</th>
-                  <th class="col-average_product_price">Avg Price</th>
-                  <th class="col-brands_page_url">Brands URL</th>
-                  <th class="col-categories">Categories</th>
-                  <th class="col-city">City</th>
-                  <th class="col-company_location">Company Location</th>
-                  <th class="col-contact_page_url">Contact URL</th>
-                  <th class="col-country_code">Country Code</th>
-                  <th class="col-created">Created</th>
-                  <th class="col-description">Description</th>
-                  <th class="col-emails">Emails</th>
-                  <th class="col-employee_count">Employees</th>
-                  <th class="col-estimated_monthly_sales">Est. Sales</th>
-                  <th class="col-facebook">Facebook</th>
-                  <th class="col-instagram">Instagram</th>
-                  <th class="col-instagram_url">Insta URL</th>
-                  <th class="col-linkedin_url">LinkedIn</th>
-                  <th class="col-maximum_product_price">Max Price</th>
-                  <th class="col-merchant_name">Merchant</th>
-                  <th class="col-meta_description">Meta Desc</th>
-                  <th class="col-meta_keywords">Meta Keywords</th>
-                  <th class="col-minimum_product_price">Min Price</th>
-                  <th class="col-phones">Phones</th>
-                  <th class="col-platform">Platform</th>
-                  <th class="col-platform_rank">Rank</th>
-                  <th class="col-region">Region</th>
-                  <th class="col-state">State</th>
-                  <th class="col-status">Status</th>
-                  <th class="col-whatsapp">WhatsApp</th>
-                  <th class="col-whatsapp_url">WhatsApp URL</th>
-                </tr>
-              </thead>
+        <div id="dataTable" class="hidden overflow-x-auto bg-white rounded shadow">
+          <table class="min-w-full">
+            <thead class="bg-gray-50 sticky top-0">
+              <tr>
+                <th><input type="checkbox" onchange="selectAll(this)" /></th>
+                <th class="col-domain">Domain</th>
+                <th class="col-merchant_name">Merchant</th>
+                <th class="col-city">City</th>
+                <th class="col-country_code">Country</th>
+                <th class="col-platform">Platform</th>
+                <th class="col-status">Status</th>
+                <!-- add other <th> here -->
+              </tr>
+            </thead>
+          </table>
+          <div id="scrollArea" class="clusterize-scroll">
+            <table class="min-w-full clusterize-content">
+              <tbody id="tableBody"></tbody>
             </table>
-            <div id="scrollArea" class="clusterize-scroll">
-              <table class="min-w-full clusterize-content">
-                <tbody id="tableBody" class="bg-white divide-y divide-gray-200"></tbody>
-              </table>
-            </div>
           </div>
         </div>
         <nav id="bottomPagination" class="hidden flex justify-center mt-4 space-x-2">
-          <button id="firstBtn" onclick="goToPage(1)" class="px-3 py-1 border rounded">First</button>
-          <button id="prevBtn" onclick="prevPage()" class="px-3 py-1 border rounded">Prev</button>
+          <button onclick="goToPage(1)">First</button>
+          <button onclick="prevPage()">Prev</button>
           <div id="pageNumbers" class="flex space-x-1"></div>
-          <button id="nextBtn" onclick="nextPage()" class="px-3 py-1 border rounded">Next</button>
-          <button id="lastBtn" onclick="goToLastPage()" class="px-3 py-1 border rounded">Last</button>
+          <button onclick="nextPage()">Next</button>
+          <button onclick="goToLastPage()">Last</button>
         </nav>
       </section>
     </main>
   </div>
 
-  <!-- Export Modal omitted for brevity -->
-
   <script>
-    // --- State & Config ---
     const config = {
       itemsPerPage: 30,
       thresholdVirtual: 10000,
@@ -129,17 +98,11 @@
         'Fashion & Apparel': '/data/Fashion and Apparel.csv',
         'Beauty & Fitness': '/data/Beauty and Fitness.csv',
         'Home & Garden': '/data/Home and Garden.csv'
-      },
-      driveLinks: {
-        'Fashion & Apparel': 'https://drive.google.com/...',
-        'Beauty & Fitness': 'https://drive.google.com/...',
-        'Home & Garden': 'https://drive.google.com/...'
       }
     };
     let state = { allData: [], filteredData: [], currentPage: 1, currentCategory: '' };
     let clusterize = null;
 
-    // --- DOM References ---
     const refs = {
       loading: document.getElementById('loading'),
       dataTable: document.getElementById('dataTable'),
@@ -148,12 +111,10 @@
       statusText: document.getElementById('statusText')
     };
 
-    // --- Utility ---
     function toggleVisibility(elem, show) {
       elem.classList[show ? 'remove' : 'add']('hidden');
     }
 
-    // --- Loading ---
     function showLoading() {
       toggleVisibility(refs.loading, true);
       toggleVisibility(refs.dataTable, false);
@@ -165,15 +126,16 @@
       toggleVisibility(refs.bottomPagination, true);
     }
 
-    // --- Load & Parse CSV ---
     function loadCategory(category) {
       state.currentCategory = category;
       showLoading();
       refs.statusText.textContent = `Loading ${category}…`;
       Papa.parse(config.categoryFiles[category], {
-        download: true, header: true, worker: true,
+        download: true,
+        header: true,
+        worker: true,
         complete: ({ data }) => {
-          state.allData = data.map((r,i) => ({ id: i+1, ...r }));
+          state.allData = data.map((row, i) => ({ id: i+1, ...row }));
           state.filteredData = [...state.allData];
           state.currentPage = 1;
           hideLoading();
@@ -182,32 +144,29 @@
       });
     }
 
-    // --- Filters ---
     function applyFilters() {
-      const term = document.getElementById('searchInput').value.trim().toLowerCase();
-      const fc = document.getElementById('filterCountry').value;
-      const fp = document.getElementById('filterPlatform').value;
-      const fs = document.getElementById('filterStatus').value;
+      const term = document.getElementById('searchInput').value.toLowerCase();
       state.filteredData = state.allData.filter(item =>
-        (item.domain.toLowerCase().includes(term) || item.merchant_name.toLowerCase().includes(term)) &&
-        (fc==='All'||item.country_code===fc) &&
-        (fp==='All'||item.platform===fp) &&
-        (fs==='All'||item.status===fs)
+        item.domain.toLowerCase().includes(term) || item.merchant_name.toLowerCase().includes(term)
       );
       state.currentPage = 1;
       renderView();
     }
 
-    // --- Render ---
-    function renderRows(slice) {
-      return slice.map(item =>
+    function renderRows(items) {
+      return items.map(item =>
         `<tr class="hover:bg-gray-50">` +
-        `<td><input type="checkbox"/></td>` +
-        `<td class="col-domain">${item.domain}</td>` +
-        // ...rest of columns...
+        `<td><input type=\"checkbox\"/></td>` +
+        `<td class=\"col-domain\">${item.domain}</td>` +
+        `<td class=\"col-merchant_name\">${item.merchant_name}</td>` +
+        `<td class=\"col-city\">${item.city}</td>` +
+        `<td class=\"col-country_code\">${item.country_code}</td>` +
+        `<td class=\"col-platform\">${item.platform}</td>` +
+        `<td class=\"col-status\">${item.status}</td>` +
         `</tr>`
       ).join('');
     }
+
     function renderView() {
       if (state.filteredData.length > config.thresholdVirtual) {
         toggleVisibility(refs.bottomPagination, false);
@@ -215,29 +174,42 @@
         clusterize = new Clusterize({ scrollId: 'scrollArea', contentId: 'tableBody', rows: renderRows(state.filteredData) });
       } else {
         toggleVisibility(refs.bottomPagination, true);
-        if (clusterize) { clusterize.destroy(true); clusterize=null; }
+        if (clusterize) { clusterize.destroy(true); clusterize = null; }
         renderTable();
       }
     }
+
     function renderTable() {
-      const start=(state.currentPage-1)*config.itemsPerPage;
-      const page=state.filteredData.slice(start,start+config.itemsPerPage);
-      refs.tableBody.innerHTML=renderRows(page);
+      const start = (state.currentPage - 1) * config.itemsPerPage;
+      const page = state.filteredData.slice(start, start + config.itemsPerPage);
+      refs.tableBody.innerHTML = renderRows(page);
       renderPagination();
     }
 
-    // --- Pagination ---
     function renderPagination() {
-      const total=Math.ceil(state.filteredData.length/config.itemsPerPage);
-      refs.bottomPagination.innerHTML='';
-      ['First','Prev'].forEach(label=>{
-        const btn=document.createElement('button');btn.textContent=label;refs.bottomPagination.appendChild(btn);
-      });
-      // next/last omitted
+      const total = Math.ceil(state.filteredData.length / config.itemsPerPage);
+      const container = refs.bottomPagination;
+      container.innerHTML = '';
+      const createBtn = (text, fn) => { const b = document.createElement('button'); b.textContent = text; b.onclick = fn; container.appendChild(b); };
+      createBtn('First', () => goToPage(1));
+      createBtn('Prev', () => goToPage(state.currentPage - 1));
+      for (let i = 1; i <= total; i++) createBtn(i, () => goToPage(i));
+      createBtn('Next', () => goToPage(state.currentPage + 1));
+      createBtn('Last', () => goToPage(total));
     }
 
-    // --- Init ---
-    document.addEventListener('DOMContentLoaded',()=>loadCategory(document.getElementById('categorySelect').value));
+    function goToPage(p) {
+      const total = Math.ceil(state.filteredData.length / config.itemsPerPage);
+      state.currentPage = Math.max(1, Math.min(p, total));
+      renderView();
+    }
+
+    function prevPage() { goToPage(state.currentPage - 1); }
+    function nextPage() { goToPage(state.currentPage + 1); }
+    function selectAll(master) { document.querySelectorAll('#tableBody input[type="checkbox"]').forEach(cb => cb.checked = master.checked); }
+    function changeCategory() { loadCategory(document.getElementById('categorySelect').value); }
+
+    document.addEventListener('DOMContentLoaded', () => loadCategory(document.getElementById('categorySelect').value));
   </script>
 </body>
 </html>
