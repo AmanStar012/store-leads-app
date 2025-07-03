@@ -1,549 +1,889 @@
-<!DOCTYPE html>
+<label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-country" class="mr-2"> Country
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-companysize" class="mr-2"> Company Size
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-employees" class="mr-2"> Employees
+                            </label><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Store Leads Dashboard</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-        .animate-spin { animation: spin 1s linear infinite; }
+        .loading { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .modal { backdrop-filter: blur(4px); }
     </style>
 </head>
-<body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState, useMemo, useEffect } = React;
-        const { Search, Download, Filter, ExternalLink, Star, BarChart3, Loader } = lucide;
+<body class="bg-gray-50">
+    <div id="app">
+        <div class="flex min-h-screen">
+            <!-- Sidebar -->
+            <div class="w-64 bg-white shadow-sm p-4">
+                <div class="space-y-6">
+                    <div>
+                        <button class="text-blue-600 text-sm font-medium">Advanced</button>
+                        <div class="flex items-center space-x-2 mt-2">
+                            <span class="text-yellow-400">⭐</span>
+                            <span class="text-gray-400">📊</span>
+                            <span class="text-gray-400">⬇️</span>
+                            <button class="text-blue-600 text-sm">Clear</button>
+                            <button onclick="toggleColumns()" class="text-blue-600 text-sm hover:text-blue-800">Columns</button>
+                            <span class="text-gray-400">🔧</span>
+                        </div>
+                    </div>
 
-        const StoreLeadsApp = () => {
-            const [currentPage, setCurrentPage] = useState(1);
-            const [searchTerm, setSearchTerm] = useState('');
-            const [selectedCategory, setSelectedCategory] = useState('Fashion & Apparel');
-            const [showExportModal, setShowExportModal] = useState(false);
-            const [showExportColumnFilter, setShowExportColumnFilter] = useState(false);
-            const [selectedRows, setSelectedRows] = useState(new Set());
-            const [showColumnFilter, setShowColumnFilter] = useState(false);
-            const [isLoading, setIsLoading] = useState(false);
-            const [allData, setAllData] = useState([]);
-            const [displayData, setDisplayData] = useState([]);
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+                            <input type="text" id="searchInput" onkeyup="filterData()" 
+                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                   placeholder="Search domains...">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <select id="categorySelect" onchange="changeCategory()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Fashion & Apparel">Fashion & Apparel</option>
+                            <option value="Beauty & Fitness">Beauty & Fitness</option>
+                            <option value="Home & Garden">Home & Garden</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                        <select id="countrySelect" onchange="filterByCountry()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="All">All Countries</option>
+                            <option value="India" selected>India</option>
+                            <option value="USA">USA</option>
+                            <option value="UK">UK</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Australia">Australia</option>
+                        </select>
+                        <div class="mt-2 text-xs text-gray-500">
+                            <div>India: 600 records</div>
+                            <div>USA: 200 records</div>
+                            <div>UK: 150 records</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
+                        <select id="platformSelect" onchange="filterByPlatform()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="All">All Platforms</option>
+                            <option value="Shopify" selected>Shopify</option>
+                            <option value="WooCommerce">WooCommerce</option>
+                            <option value="Magento">Magento</option>
+                            <option value="BigCommerce">BigCommerce</option>
+                            <option value="Custom">Custom</option>
+                        </select>
+                        <div class="mt-2 text-xs text-gray-500">
+                            <div>WooCommerce: 4,602,082</div>
+                            <div>Shopify: 3,187,025</div>
+                            <button class="text-blue-600">306 more platforms available</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select id="statusSelect" onchange="filterByStatus()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="All">All Status</option>
+                            <option value="Active" selected>Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Password Protected">Password Protected</option>
+                            <option value="Under Construction">Under Construction</option>
+                        </select>
+                        <div class="mt-2 text-xs text-gray-500">
+                            <div>Active: 7,189,832</div>
+                            <div>Password Protected: 599,275</div>
+                            <div>Inactive: 245,123</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
+                        <select id="companySizeSelect" onchange="filterByCompanySize()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="All">All Sizes</option>
+                            <option value="1-10">1-10 employees</option>
+                            <option value="11-50">11-50 employees</option>
+                            <option value="51-200">51-200 employees</option>
+                            <option value="201-1000">201-1000 employees</option>
+                            <option value="1000+">1000+ employees</option>
+                        </select>
+                        <div class="mt-2 text-xs text-gray-500">
+                            <div>Small (1-50): 2,456,789</div>
+                            <div>Medium (51-200): 1,234,567</div>
+                            <div>Large (200+): 987,654</div>
+                        </div>
+                    </div>
+
+                    <div id="columnFilter" class="hidden border-t pt-4">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Visible Columns</h3>
+                        <div class="space-y-2 max-h-64 overflow-y-auto">
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-domain" checked onchange="toggleColumn('domain')" class="mr-2"> Domain
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-merchant" checked onchange="toggleColumn('merchant')" class="mr-2"> Merchant Name
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-city" checked onchange="toggleColumn('city')" class="mr-2"> City
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-state" checked onchange="toggleColumn('state')" class="mr-2"> State
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-price" checked onchange="toggleColumn('price')" class="mr-2"> Avg Price
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-platform" checked onchange="toggleColumn('platform')" class="mr-2"> Platform
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-rank" checked onchange="toggleColumn('rank')" class="mr-2"> Rank
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-status" checked onchange="toggleColumn('status')" class="mr-2"> Status
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-sales" checked onchange="toggleColumn('sales')" class="mr-2"> Est. Sales
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-emails" onchange="toggleColumn('emails')" class="mr-2"> Emails
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="col-phones" onchange="toggleColumn('phones')" class="mr-2"> Phones
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 flex flex-col">
+                <!-- Header -->
+                <div class="bg-blue-600 text-white p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-white rounded"></div>
+                            <h1 class="text-xl font-semibold">Store Leads</h1>
+                        </div>
+                        <button onclick="openExportModal()" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded transition-colors">
+                            ⬇️ EXPORT
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 p-6">
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p id="statusText" class="text-sm text-green-600">
+                                    ✅ Fashion & Apparel records loaded from India
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="prevPage()" id="prevBtn" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Previous</button>
+                                <span id="pageInfo">Page 1 of 20</span>
+                                <button onclick="nextPage()" id="nextBtn" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Next</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loading" class="hidden flex items-center justify-center py-20">
+                        <div class="text-center">
+                            <div class="loading mx-auto mb-4 w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+                            <p class="text-gray-600">Loading data...</p>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div id="dataTable" class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">
+                                            <input type="checkbox" onchange="selectAll(this)">
+                                        </th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-domain">Domain</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-merchant">Merchant Name</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-city">City</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-state">State</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-price">Avg Price</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-platform">Platform</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-rank">Rank</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-status">Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-sales">Est. Sales</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-emails hidden">Emails</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-phones hidden">Phones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Data will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Pagination -->
+                    <div id="bottomPagination" class="flex items-center justify-center mt-6 space-x-2">
+                        <button onclick="goToPage(1)" id="firstBtn" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">First</button>
+                        <button onclick="prevPage()" id="prevBtn2" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Previous</button>
+                        <div id="pageNumbers" class="flex space-x-1">
+                            <!-- Page numbers will be inserted here -->
+                        </div>
+                        <button onclick="nextPage()" id="nextBtn2" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Next</button>
+                        <button onclick="goToLastPage()" id="lastBtn" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Last</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal">
+        <div class="bg-white rounded-lg p-6 w-[600px] max-h-[80vh] overflow-y-auto">
+            <h3 class="text-lg font-semibold mb-4">Export Data</h3>
             
-            const [exportColumns, setExportColumns] = useState({
-                domain: true,
-                merchant_name: true,
-                city: true,
-                state: true,
-                average_product_price: true,
-                platform: true,
-                platform_rank: true,
-                status: true,
-                estimated_monthly_sales: true,
-                emails: true,
-                phones: true,
-                instagram: false,
-                facebook: false,
-                whatsapp: false
-            });
+            <div class="space-y-3">
+                <button onclick="exportToDrive()" class="w-full bg-green-600 text-white py-3 px-4 rounded hover:bg-green-700 transition-colors text-left">
+                    <div class="font-medium">🔗 Access Full Dataset via Google Drive</div>
+                    <div class="text-sm opacity-90" id="driveDescription">
+                        Complete Fashion & Apparel dataset (600 records)
+                    </div>
+                </button>
+                
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <div class="font-medium">📊 Export Current View</div>
+                            <div class="text-sm text-gray-600">Download visible data as CSV with custom columns</div>
+                        </div>
+                        <button onclick="toggleExportColumns()" id="exportColumnsBtn" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Select Columns
+                        </button>
+                    </div>
+                    
+                    <div id="exportColumnFilter" class="hidden mb-4 p-3 border rounded bg-white">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Choose columns to export:</h4>
+                        <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-domain" checked class="mr-2"> Domain
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-merchant" checked class="mr-2"> Merchant Name
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-city" checked class="mr-2"> City
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-state" checked class="mr-2"> State
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-price" checked class="mr-2"> Avg Price
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-platform" checked class="mr-2"> Platform
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-rank" checked class="mr-2"> Rank
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-status" checked class="mr-2"> Status
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-sales" checked class="mr-2"> Est. Sales
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-emails" checked class="mr-2"> Emails
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-phones" checked class="mr-2"> Phones
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-instagram" class="mr-2"> Instagram
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-facebook" class="mr-2"> Facebook
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" id="exp-whatsapp" class="mr-2"> WhatsApp
+                            </label>
+                        </div>
+                        <div class="flex space-x-2 mt-3">
+                            <button onclick="selectAllExportColumns()" class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">
+                                Select All
+                            </button>
+                            <button onclick="selectNoneExportColumns()" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded hover:bg-gray-200">
+                                Select None
+                            </button>
+                            <button onclick="useCurrentViewColumns()" class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded hover:bg-green-200">
+                                Use Current View
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button onclick="exportCurrentView()" id="exportBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
+                        <span id="exportBtnText">11 columns selected - Export CSV</span>
+                    </button>
+                </div>
+            </div>
             
-            const [visibleColumns, setVisibleColumns] = useState({
-                domain: true,
-                merchant_name: true,
-                city: true,
-                state: true,
-                average_product_price: true,
-                platform: true,
-                platform_rank: true,
-                status: true,
-                estimated_monthly_sales: true,
-                emails: false,
-                phones: false,
-                instagram: false,
-                facebook: false,
-                whatsapp: false
-            });
+            <div class="flex space-x-3 mt-6">
+                <button onclick="closeExportModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
 
-            const itemsPerPage = 30;
-            const categories = ['Fashion & Apparel', 'Beauty & Fitness', 'Home & Garden'];
-
-            // Generate realistic sample data based on category
-            const generateCategoryData = (category) => {
-                const samples = [];
-                const cities = ['Mumbai', 'Delhi', 'Bengaluru', 'Chennai', 'Kolkata', 'Pune', 'Hyderabad', 'Ahmedabad', 'Jaipur', 'Surat'];
-                const states = ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'West Bengal', 'Maharashtra', 'Telangana', 'Gujarat', 'Rajasthan', 'Gujarat'];
-                
-                const businessData = {
-                    'Fashion & Apparel': {
-                        names: ['StudioSuits', 'GIVA Jewellery', 'Westside', 'Myntra Fashion', 'AJIO', 'Pantaloons Fashion', 'Fabindia', 'Max Fashion', 'Reliance Trends', 'Shoppers Stop'],
-                        domains: ['studiosuits.com', 'giva.co', 'westside.com', 'myntra.com', 'ajio.com', 'pantaloons.com', 'fabindia.com', 'maxfashion.com', 'reliancetrends.com', 'shoppersstop.com']
-                    },
-                    'Beauty & Fitness': {
-                        names: ['Plum Goodness', 'Minimalist', 'Nykaa', 'SUGAR Cosmetics', 'Mamaearth', 'The Culture Co', 'Kay Beauty', 'Lakme', 'Colorbar', 'Faces Canada'],
-                        domains: ['plumgoodness.com', 'minimalist.co', 'nykaa.com', 'sugarcosmetics.com', 'mamaearth.in', 'thecultureco.com', 'kaybeauty.com', 'lakme.com', 'colorbar.co.in', 'facescanada.com']
-                    },
-                    'Home & Garden': {
-                        names: ['Duroflex', 'Urban Ladder', 'Pepperfry', 'Furniture World', 'Hometown', 'Godrej Interio', 'Evok Furniture', 'Nilkamal', 'Spacewood', 'IKEA India'],
-                        domains: ['duroflex.com', 'urbanladder.com', 'pepperfry.com', 'furnitureworld.in', 'hometown.in', 'godrejinterio.com', 'evok.in', 'nilkamal.com', 'spacewood.in', 'ikea.com']
-                    }
-                };
-
-                const data = businessData[category] || businessData['Fashion & Apparel'];
-                
-                for (let i = 0; i < 600; i++) {
-                    const cityIndex = i % cities.length;
-                    const businessIndex = i % data.names.length;
-                    const storeNumber = Math.floor(i / data.names.length) + 1;
-                    
-                    samples.push({
-                        id: i + 1,
-                        domain: `www.${data.domains[businessIndex]}`,
-                        merchant_name: data.names[businessIndex] + (storeNumber > 1 ? ` Store ${storeNumber}` : ''),
-                        city: cities[cityIndex],
-                        state: states[cityIndex],
-                        average_product_price: `INR ₹${(Math.random() * 5000 + 500).toFixed(2)}`,
-                        platform: 'Shopify',
-                        platform_rank: Math.floor(Math.random() * 10000) + 1,
-                        status: 'Active',
-                        estimated_monthly_sales: `USD $${(Math.random() * 1000000 + 100000).toFixed(2)}`,
-                        emails: `contact@${data.domains[businessIndex]}`,
-                        phones: `+91 ${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-                        instagram: data.names[businessIndex].toLowerCase().replace(/\s+/g, ''),
-                        facebook: data.names[businessIndex].toLowerCase().replace(/\s+/g, ''),
-                        whatsapp: Math.floor(Math.random() * 9000000000) + 1000000000
-                    });
-                }
-                return samples;
-            };
-
-            // Load data when category changes
-            useEffect(() => {
-                const loadData = async () => {
-                    setIsLoading(true);
-                    
-                    // Simulate loading delay for category changes
-                    if (allData.length > 0) {
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                    }
-                    
-                    const newData = generateCategoryData(selectedCategory);
-                    setAllData(newData);
-                    setCurrentPage(1);
-                    setIsLoading(false);
-                };
-                
-                loadData();
-            }, [selectedCategory]);
-
-            // Filter data based on search
-            const filteredData = useMemo(() => {
-                return allData.filter(item => {
-                    const domain = item.domain || '';
-                    const merchantName = item.merchant_name || '';
-                    const matchesSearch = domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                         merchantName.toLowerCase().includes(searchTerm.toLowerCase());
-                    return matchesSearch;
-                });
-            }, [allData, searchTerm]);
-
-            // Handle pagination with 3-second delay
-            useEffect(() => {
-                const loadPage = async () => {
-                    if (filteredData.length === 0) return;
-                    
-                    setIsLoading(true);
-                    setDisplayData([]); // Clear current data
-                    
-                    // 3-second delay for page changes
-                    if (currentPage > 1) {
-                        await new Promise(resolve => setTimeout(resolve, 3000));
-                    }
-                    
-                    const startIndex = (currentPage - 1) * itemsPerPage;
-                    const endIndex = startIndex + itemsPerPage;
-                    const pageData = filteredData.slice(startIndex, endIndex);
-                    
-                    setDisplayData(pageData);
-                    setIsLoading(false);
-                };
-
-                loadPage();
-            }, [currentPage, filteredData]);
-
-            // Reset page when search changes
-            useEffect(() => {
-                setCurrentPage(1);
-            }, [searchTerm]);
-
-            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-            const handlePageChange = (newPage) => {
-                if (newPage !== currentPage && newPage >= 1 && newPage <= totalPages && !isLoading) {
-                    setCurrentPage(newPage);
-                }
-            };
-
-            const handleRowSelect = (id) => {
-                const newSelected = new Set(selectedRows);
-                if (newSelected.has(id)) {
-                    newSelected.delete(id);
-                } else {
-                    newSelected.add(id);
-                }
-                setSelectedRows(newSelected);
-            };
-
-            const handleExport = (customColumns = null) => {
-                const dataToExport = selectedRows.size > 0 
-                    ? allData.filter(item => selectedRows.has(item.id))
-                    : filteredData;
-                
-                const headers = customColumns ? 
-                    Object.keys(customColumns).filter(col => customColumns[col]) :
-                    Object.keys(visibleColumns).filter(col => visibleColumns[col]);
-                
-                const csvContent = [
-                    headers.join(','),
-                    ...dataToExport.map(item => 
-                        headers.map(header => `"${item[header] || ''}"`).join(',')
-                    )
-                ].join('\n');
-
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `store-leads-${selectedCategory.toLowerCase().replace(/\s+/g, '-')}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                setShowExportModal(false);
-            };
-
-            return React.createElement('div', { className: "w-full min-h-screen bg-gray-50" },
-                React.createElement('div', { className: "flex min-h-screen" },
-                    // Sidebar
-                    React.createElement('div', { className: "w-64 bg-white shadow-sm p-4" },
-                        React.createElement('div', { className: "space-y-6" },
-                            React.createElement('div', null,
-                                React.createElement('button', { className: "text-blue-600 text-sm font-medium" }, "Advanced"),
-                                React.createElement('div', { className: "flex items-center space-x-2 mt-2" },
-                                    React.createElement(Star, { className: "text-yellow-400", size: 16 }),
-                                    React.createElement(BarChart3, { className: "text-gray-400", size: 16 }),
-                                    React.createElement(Download, { className: "text-gray-400", size: 16 }),
-                                    React.createElement('h4', { className: "text-sm font-medium text-gray-700 mb-3" }, "Choose columns to export:"),
-                                    React.createElement('div', { className: "grid grid-cols-2 gap-2 max-h-48 overflow-y-auto" },
-                                        Object.keys(exportColumns).map(column =>
-                                            React.createElement('label', { key: column, className: "flex items-center text-sm" },
-                                                React.createElement('input', {
-                                                    type: "checkbox",
-                                                    checked: exportColumns[column],
-                                                    onChange: (e) => setExportColumns({
-                                                        ...exportColumns,
-                                                        [column]: e.target.checked
-                                                    }),
-                                                    className: "mr-2 rounded border-gray-300"
-                                                }),
-                                                React.createElement('span', { className: "capitalize" }, column.replace(/_/g, ' '))
-                                            )
-                                        )
-                                    ),
-                                    React.createElement('div', { className: "flex space-x-2 mt-3" },
-                                        React.createElement('button', {
-                                            onClick: () => {
-                                                const allSelected = {};
-                                                Object.keys(exportColumns).forEach(col => allSelected[col] = true);
-                                                setExportColumns(allSelected);
-                                            },
-                                            className: "text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200"
-                                        }, "Select All"),
-                                        React.createElement('button', {
-                                            onClick: () => {
-                                                const noneSelected = {};
-                                                Object.keys(exportColumns).forEach(col => noneSelected[col] = false);
-                                                setExportColumns(noneSelected);
-                                            },
-                                            className: "text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded hover:bg-gray-200"
-                                        }, "Select None"),
-                                        React.createElement('button', {
-                                            onClick: () => setExportColumns({...visibleColumns}),
-                                            className: "text-xs bg-green-100 text-green-600 px-2 py-1 rounded hover:bg-green-200"
-                                        }, "Use Current View")
-                                    )
-                                ),
-                                React.createElement('button', {
-                                    onClick: () => handleExport(exportColumns),
-                                    disabled: !Object.values(exportColumns).some(val => val),
-                                    className: "w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                }, `${Object.values(exportColumns).filter(val => val).length} columns selected - Export CSV`)
-                            )
-                        ),
-                        React.createElement('div', { className: "flex space-x-3 mt-6" },
-                            React.createElement('button', {
-                                onClick: () => {
-                                    setShowExportModal(false);
-                                    setShowExportColumnFilter(false);
-                                },
-                                className: "flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors"
-                            }, "Cancel")
-                        )
-                    )
-                )
-            );
+    <script>
+        // Enhanced data with 600 entries per category
+        const businessData = {
+            'Fashion & Apparel': {
+                names: ['StudioSuits', 'GIVA Jewellery', 'Westside', 'Myntra Fashion', 'AJIO', 'Pantaloons Fashion', 'Fabindia', 'Max Fashion', 'Reliance Trends', 'Shoppers Stop', 'Lifestyle Stores', 'Central Fashion', 'Trends Fashion', 'Zara India', 'H&M India', 'Uniqlo India', 'Forever 21 India', 'Vero Moda', 'Only India', 'Jack & Jones'],
+                domains: ['studiosuits.com', 'giva.co', 'westside.com', 'myntra.com', 'ajio.com', 'pantaloons.com', 'fabindia.com', 'maxfashion.com', 'reliancetrends.com', 'shoppersstop.com', 'lifestylestores.com', 'centralfashion.com', 'trends.com', 'zara.com', 'hm.com', 'uniqlo.com', 'forever21.com', 'veromoda.com', 'only.com', 'jackjones.com']
+            },
+            'Beauty & Fitness': {
+                names: ['Plum Goodness', 'Minimalist', 'Nykaa', 'SUGAR Cosmetics', 'Mamaearth', 'The Culture Co', 'Kay Beauty', 'Lakme', 'Colorbar', 'Faces Canada', 'Lotus Herbals', 'Maybelline India', 'L\'Oreal Paris', 'Revlon India', 'Biotique', 'Himalaya Wellness', 'Patanjali Ayurved', 'Khadi Natural', 'Forest Essentials', 'The Body Shop India'],
+                domains: ['plumgoodness.com', 'minimalist.co', 'nykaa.com', 'sugarcosmetics.com', 'mamaearth.in', 'thecultureco.com', 'kaybeauty.com', 'lakme.com', 'colorbar.co.in', 'facescanada.com', 'lotusherbals.com', 'maybelline.co.in', 'loreal.co.in', 'revlon.co.in', 'biotique.com', 'himalayawellness.com', 'patanjali.com', 'khadinatural.com', 'forestessentials.com', 'thebodyshop.co.in']
+            },
+            'Home & Garden': {
+                names: ['Duroflex', 'Urban Ladder', 'Pepperfry', 'Furniture World', 'Hometown', 'Godrej Interio', 'Evok Furniture', 'Nilkamal', 'Spacewood', 'IKEA India', 'FabFurnish', 'WoodenStreet', 'Livspace', 'Home Centre', 'Decornation', '@home', 'Perfect Homes', 'Sleepwell', 'Kurlon', 'Cello World'],
+                domains: ['duroflex.com', 'urbanladder.com', 'pepperfry.com', 'furnitureworld.in', 'hometown.in', 'godrejinterio.com', 'evok.in', 'nilkamal.com', 'spacewood.in', 'ikea.com', 'fabfurnish.com', 'woodenstreet.com', 'livspace.com', 'homecentre.in', 'decornation.com', 'athome.co.in', 'perfecthomes.in', 'sleepwell.in', 'kurlon.com', 'celloworld.com']
+            }
         };
 
-        // Render the app
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(StoreLeadsApp));
+        const cities = ['Mumbai', 'Delhi', 'Bengaluru', 'Chennai', 'Kolkata', 'Pune', 'Hyderabad', 'Ahmedabad', 'Jaipur', 'Surat', 'Kanpur', 'Lucknow', 'Nagpur', 'Patna', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Vadodara', 'Coimbatore'];
+        const states = ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'West Bengal', 'Maharashtra', 'Telangana', 'Gujarat', 'Rajasthan', 'Gujarat', 'Uttar Pradesh', 'Uttar Pradesh', 'Maharashtra', 'Bihar', 'Madhya Pradesh', 'Maharashtra', 'Madhya Pradesh', 'Andhra Pradesh', 'Gujarat', 'Tamil Nadu'];
+        const countries = ['India', 'India', 'India', 'India', 'India', 'India', 'India', 'India', 'USA', 'UK']; // Mostly India
+        const platforms = ['Shopify', 'Shopify', 'Shopify', 'WooCommerce', 'Magento', 'BigCommerce'];
+        const statuses = ['Active', 'Active', 'Active', 'Active', 'Inactive', 'Password Protected'];
+        const companySizes = ['1-10', '11-50', '51-200', '201-1000', '1000+'];
+
+        let currentCategory = 'Fashion & Apparel';
+        let currentPage = 1;
+        let itemsPerPage = 30;
+        let isLoading = false;
+        let allData = [];
+        let filteredData = [];
+        let selectedRows = new Set();
+        let currentFilters = {
+            search: '',
+            country: 'All',
+            platform: 'All',
+            status: 'All',
+            companySize: 'All'
+        };
+
+        // Generate 600 entries per category
+        function generateExtendedData(category) {
+            const data = businessData[category];
+            const extended = [];
+            
+            for (let i = 0; i < 600; i++) {
+                const baseIndex = i % data.names.length;
+                const cityIndex = i % cities.length;
+                const storeNumber = Math.floor(i / data.names.length) + 1;
+                const employees = Math.floor(Math.random() * 1000) + 1;
+                
+                let companySize;
+                if (employees <= 10) companySize = '1-10';
+                else if (employees <= 50) companySize = '11-50';
+                else if (employees <= 200) companySize = '51-200';
+                else if (employees <= 1000) companySize = '201-1000';
+                else companySize = '1000+';
+                
+                extended.push({
+                    id: i + 1,
+                    domain: `www.${data.domains[baseIndex]}`,
+                    merchant: data.names[baseIndex] + (storeNumber > 1 ? ` Store ${storeNumber}` : ''),
+                    city: cities[cityIndex],
+                    state: states[cityIndex],
+                    country: countries[i % countries.length],
+                    price: `INR ₹${(Math.random() * 5000 + 500).toFixed(2)}`,
+                    platform: platforms[i % platforms.length],
+                    rank: Math.floor(Math.random() * 10000) + 1,
+                    status: statuses[i % statuses.length],
+                    sales: `USD ${(Math.random() * 1000000 + 100000).toFixed(2)}`,
+                    emails: `contact@${data.domains[baseIndex]}`,
+                    phones: `+91 ${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+                    instagram: data.names[baseIndex].toLowerCase().replace(/\s+/g, '').replace(/'/g, ''),
+                    facebook: data.names[baseIndex].toLowerCase().replace(/\s+/g, '').replace(/'/g, ''),
+                    whatsapp: Math.floor(Math.random() * 9000000000) + 1000000000,
+                    employees: employees,
+                    companySize: companySize
+                });
+            }
+            return extended;
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('dataTable').classList.add('hidden');
+            document.getElementById('bottomPagination').classList.add('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('dataTable').classList.remove('hidden');
+            document.getElementById('bottomPagination').classList.remove('hidden');
+        }
+
+        function renderTable() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            pageData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-4 py-3">
+                        <input type="checkbox" data-id="${item.id}" onchange="toggleRowSelection(${item.id}, this.checked)">
+                    </td>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900 col-domain">
+                        <a href="https://${item.domain}" target="_blank" class="text-blue-600 hover:text-blue-800 flex items-center space-x-1">
+                            <span class="truncate max-w-40">${item.domain}</span>
+                            <span>🔗</span>
+                        </a>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-merchant">${item.merchant}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-city">${item.city}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-state">${item.state}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-price">${item.price}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-platform">${item.platform}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-rank">${item.rank}</td>
+                    <td class="px-4 py-3 text-sm col-status">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-sales">${item.sales}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-emails hidden">${item.emails}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 col-phones hidden">${item.phones}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            
+            // Update page info
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            
+            // Update button states
+            const prevBtns = [document.getElementById('prevBtn'), document.getElementById('prevBtn2')];
+            const nextBtns = [document.getElementById('nextBtn'), document.getElementById('nextBtn2')];
+            const firstBtn = document.getElementById('firstBtn');
+            const lastBtn = document.getElementById('lastBtn');
+            
+            prevBtns.forEach(btn => btn.disabled = currentPage <= 1);
+            nextBtns.forEach(btn => btn.disabled = currentPage >= totalPages);
+            firstBtn.disabled = currentPage <= 1;
+            lastBtn.disabled = currentPage >= totalPages;
+
+            // Update page numbers
+            updatePageNumbers(totalPages);
+        }
+
+        function updatePageNumbers(totalPages) {
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+            
+            const maxVisible = 5;
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+            
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.className = `px-3 py-1 border rounded ${i === currentPage ? 'bg-blue-600 text-white' : 'hover:bg-gray-50'}`;
+                btn.onclick = () => goToPage(i);
+                pageNumbers.appendChild(btn);
+            }
+        }
+
+        async function changeCategory() {
+            const select = document.getElementById('categorySelect');
+            currentCategory = select.value;
+            currentPage = 1;
+            selectedRows.clear();
+            
+            document.getElementById('statusText').textContent = `✅ ${currentCategory} records loaded from India`;
+            document.getElementById('driveDescription').textContent = `Complete ${currentCategory} dataset (600 records)`;
+            
+            showLoading();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            allData = generateExtendedData(currentCategory);
+            filteredData = [...allData];
+            
+            hideLoading();
+            renderTable();
+        }
+
+        async function nextPage() {
+            if (isLoading) return;
+            
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            
+            if (currentPage < totalPages) {
+                showLoading();
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                currentPage++;
+                hideLoading();
+                renderTable();
+                isLoading = false;
+            }
+        }
+
+        async function prevPage() {
+            if (isLoading) return;
+            
+            if (currentPage > 1) {
+                isLoading = true;
+                showLoading();
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                currentPage--;
+                hideLoading();
+                renderTable();
+                isLoading = false;
+            }
+        }
+
+        async function goToPage(page) {
+            if (isLoading || page === currentPage) return;
+            
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            isLoading = true;
+            showLoading();
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            currentPage = page;
+            hideLoading();
+            renderTable();
+            isLoading = false;
+        }
+
+        function goToLastPage() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            goToPage(totalPages);
+        }
+
+        function toggleColumns() {
+            const filter = document.getElementById('columnFilter');
+            filter.classList.toggle('hidden');
+        }
+
+        function toggleColumn(columnName) {
+            const elements = document.querySelectorAll(`.col-${columnName}`);
+            const checkbox = document.getElementById(`col-${columnName}`);
+            
+            elements.forEach(el => {
+                if (checkbox.checked) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
+        function applyAllFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const country = document.getElementById('countrySelect').value;
+            const platform = document.getElementById('platformSelect').value;
+            const status = document.getElementById('statusSelect').value;
+            const companySize = document.getElementById('companySizeSelect').value;
+            
+            currentFilters = { search: searchTerm, country, platform, status, companySize };
+            
+            filteredData = allData.filter(item => {
+                // Search filter
+                const matchesSearch = searchTerm === '' || 
+                    item.domain.toLowerCase().includes(searchTerm) ||
+                    item.merchant.toLowerCase().includes(searchTerm);
+                
+                // Country filter
+                const matchesCountry = country === 'All' || item.country === country;
+                
+                // Platform filter
+                const matchesPlatform = platform === 'All' || item.platform === platform;
+                
+                // Status filter
+                const matchesStatus = status === 'All' || item.status === status;
+                
+                // Company size filter
+                const matchesCompanySize = companySize === 'All' || item.companySize === companySize;
+                
+                return matchesSearch && matchesCountry && matchesPlatform && matchesStatus && matchesCompanySize;
+            });
+            
+            currentPage = 1;
+            renderTable();
+            updateFilterCounts();
+        }
+
+        function filterData() {
+            applyAllFilters();
+        }
+
+        function filterByCountry() {
+            applyAllFilters();
+        }
+
+        function filterByPlatform() {
+            applyAllFilters();
+        }
+
+        function filterByStatus() {
+            applyAllFilters();
+        }
+
+        function filterByCompanySize() {
+            applyAllFilters();
+        }
+
+        function updateFilterCounts() {
+            // Update status text with filter info
+            let statusText = `✅ ${currentCategory} records loaded from ${currentFilters.country === 'All' ? 'All Countries' : currentFilters.country}`;
+            
+            if (Object.values(currentFilters).some(filter => filter !== 'All' && filter !== '')) {
+                statusText += ` (${filteredData.length} filtered)`;
+            }
+            
+            document.getElementById('statusText').textContent = statusText;
+        }
+
+        function selectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                const id = parseInt(cb.dataset.id);
+                if (checkbox.checked) {
+                    selectedRows.add(id);
+                } else {
+                    selectedRows.delete(id);
+                }
+            });
+        }
+
+        function toggleRowSelection(id, checked) {
+            if (checked) {
+                selectedRows.add(id);
+            } else {
+                selectedRows.delete(id);
+            }
+        }
+
+        // Export functionality
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+            updateExportButtonText();
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function toggleExportColumns() {
+            const filter = document.getElementById('exportColumnFilter');
+            const btn = document.getElementById('exportColumnsBtn');
+            
+            filter.classList.toggle('hidden');
+            btn.textContent = filter.classList.contains('hidden') ? 'Select Columns' : 'Hide Columns';
+            updateExportButtonText();
+        }
+
+        function updateExportButtonText() {
+            const checkboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            document.getElementById('exportBtnText').textContent = `${checkedCount} columns selected - Export CSV`;
+        }
+
+        function selectAllExportColumns() {
+            const checkboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+            updateExportButtonText();
+        }
+
+        function selectNoneExportColumns() {
+            const checkboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            updateExportButtonText();
+        }
+
+        function useCurrentViewColumns() {
+            // Reset all export checkboxes
+            const exportCheckboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
+            exportCheckboxes.forEach(cb => cb.checked = false);
+            
+            // Check only visible columns
+            const visibleCheckboxes = document.querySelectorAll('#columnFilter input[type="checkbox"]');
+            visibleCheckboxes.forEach(cb => {
+                const columnName = cb.id.replace('col-', '');
+                const exportCb = document.getElementById(`exp-${columnName}`);
+                if (exportCb && cb.checked) {
+                    exportCb.checked = true;
+                }
+            });
+            
+            updateExportButtonText();
+        }
+
+        function exportToDrive() {
+            const driveLinks = {
+                'Fashion & Apparel': 'https://drive.google.com/file/d/16AsWtHmdaRq4E3i_8I5slS7K2QAYpc1j/view?usp=sharing',
+                'Beauty & Fitness': 'https://drive.google.com/file/d/11AJRr1OgwL2bMiVuetaTD2-k-02ANWuV/view?usp=sharing',
+                'Home & Garden': 'https://drive.google.com/file/d/12O1q1GFfP7UV8PUyuT4lQa-YBZxBo7rW/view?usp=sharing'
+            };
+            
+            window.open(driveLinks[currentCategory], '_blank');
+            closeExportModal();
+        }
+
+        function exportCurrentView() {
+            // Get selected columns
+            const selectedColumns = [];
+            const columnMap = {
+                'exp-domain': 'domain',
+                'exp-merchant': 'merchant',
+                'exp-city': 'city',
+                'exp-state': 'state',
+                'exp-country': 'country',
+                'exp-price': 'price',
+                'exp-platform': 'platform',
+                'exp-rank': 'rank',
+                'exp-status': 'status',
+                'exp-sales': 'sales',
+                'exp-emails': 'emails',
+                'exp-phones': 'phones',
+                'exp-instagram': 'instagram',
+                'exp-facebook': 'facebook',
+                'exp-whatsapp': 'whatsapp',
+                'exp-companysize': 'companySize',
+                'exp-employees': 'employees'
+            };
+
+            const headerMap = {
+                'domain': 'Domain',
+                'merchant': 'Merchant Name',
+                'city': 'City',
+                'state': 'State',
+                'country': 'Country',
+                'price': 'Average Price',
+                'platform': 'Platform',
+                'rank': 'Platform Rank',
+                'status': 'Status',
+                'sales': 'Estimated Sales',
+                'emails': 'Emails',
+                'phones': 'Phones',
+                'instagram': 'Instagram',
+                'facebook': 'Facebook',
+                'whatsapp': 'WhatsApp',
+                'companySize': 'Company Size',
+                'employees': 'Employee Count'
+            };
+
+            Object.keys(columnMap).forEach(checkboxId => {
+                const checkbox = document.getElementById(checkboxId);
+                if (checkbox && checkbox.checked) {
+                    selectedColumns.push(columnMap[checkboxId]);
+                }
+            });
+
+            if (selectedColumns.length === 0) {
+                alert('Please select at least one column to export.');
+                return;
+            }
+
+            // Determine data to export
+            const dataToExport = selectedRows.size > 0 
+                ? allData.filter(item => selectedRows.has(item.id))
+                : filteredData;
+
+            // Generate CSV content
+            const headers = selectedColumns.map(col => headerMap[col]);
+            let csvContent = headers.join(',') + '\n';
+
+            dataToExport.forEach(item => {
+                const row = selectedColumns.map(col => {
+                    const value = item[col] || '';
+                    // Escape quotes and wrap in quotes if contains comma
+                    const escapedValue = value.toString().replace(/"/g, '""');
+                    return value.includes(',') ? `"${escapedValue}"` : escapedValue;
+                });
+                csvContent += row.join(',') + '\n';
+            });
+
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `store-leads-${currentCategory.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            closeExportModal();
+            
+            // Show success message
+            const originalText = document.getElementById('statusText').textContent;
+            document.getElementById('statusText').textContent = `✅ Exported ${dataToExport.length} records with ${selectedColumns.length} columns`;
+            document.getElementById('statusText').className = 'text-sm text-blue-600';
+            
+            setTimeout(() => {
+                document.getElementById('statusText').textContent = originalText;
+                document.getElementById('statusText').className = 'text-sm text-green-600';
+            }, 3000);
+        }
+
+        // Add event listeners for export column checkboxes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize data
+            allData = generateExtendedData(currentCategory);
+            filteredData = [...allData];
+            renderTable();
+
+            // Add event listeners for export checkboxes
+            const exportCheckboxes = document.querySelectorAll('#exportColumnFilter input[type="checkbox"]');
+            exportCheckboxes.forEach(cb => {
+                cb.addEventListener('change', updateExportButtonText);
+            });
+        });
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            allData = generateExtendedData(currentCategory);
+            filteredData = [...allData];
+            renderTable();
+        });
     </script>
 </body>
-</html>button', { className: "text-blue-600 text-sm" }, "Clear"),
-                                    React.createElement('button', { 
-                                        onClick: () => setShowColumnFilter(!showColumnFilter),
-                                        className: "text-blue-600 text-sm hover:text-blue-800"
-                                    }, "Columns"),
-                                    React.createElement(Filter, { className: "text-gray-400", size: 16 })
-                                )
-                            ),
-                            React.createElement('div', null,
-                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Search"),
-                                React.createElement('div', { className: "relative" },
-                                    React.createElement(Search, { className: "absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400", size: 16 }),
-                                    React.createElement('input', {
-                                        type: "text",
-                                        value: searchTerm,
-                                        onChange: (e) => setSearchTerm(e.target.value),
-                                        className: "w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-                                        placeholder: "Search domains..."
-                                    })
-                                )
-                            ),
-                            React.createElement('div', null,
-                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Category"),
-                                React.createElement('select', {
-                                    value: selectedCategory,
-                                    onChange: (e) => setSelectedCategory(e.target.value),
-                                    className: "w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                },
-                                    categories.map(category => 
-                                        React.createElement('option', { key: category, value: category }, category)
-                                    )
-                                )
-                            ),
-                            React.createElement('div', null,
-                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Platform"),
-                                React.createElement('select', { className: "w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" },
-                                    React.createElement('option', null, "Shopify"),
-                                    React.createElement('option', null, "All")
-                                ),
-                                React.createElement('div', { className: "mt-2 text-xs text-gray-500" },
-                                    React.createElement('div', null, "WooCommerce: 4,602,082"),
-                                    React.createElement('div', null, "Shopify: 3,187,025"),
-                                    React.createElement('button', { className: "text-blue-600" }, "306 more platforms available")
-                                )
-                            ),
-                            React.createElement('div', null,
-                                React.createElement('label', { className: "block text-sm font-medium text-gray-700 mb-2" }, "Status"),
-                                React.createElement('select', { className: "w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" },
-                                    React.createElement('option', null, "Active"),
-                                    React.createElement('option', null, "All")
-                                ),
-                                React.createElement('div', { className: "mt-2 text-xs text-gray-500" },
-                                    React.createElement('div', null, "Active: 7,189,832"),
-                                    React.createElement('div', null, "Password Protected: 599,275")
-                                )
-                            ),
-                            showColumnFilter && React.createElement('div', { className: "border-t pt-4" },
-                                React.createElement('h3', { className: "text-sm font-medium text-gray-700 mb-3" }, "Visible Columns"),
-                                React.createElement('div', { className: "space-y-2 max-h-64 overflow-y-auto" },
-                                    Object.keys(visibleColumns).map(column =>
-                                        React.createElement('label', { key: column, className: "flex items-center text-sm" },
-                                            React.createElement('input', {
-                                                type: "checkbox",
-                                                checked: visibleColumns[column],
-                                                onChange: (e) => setVisibleColumns({
-                                                    ...visibleColumns,
-                                                    [column]: e.target.checked
-                                                }),
-                                                className: "mr-2 rounded border-gray-300"
-                                            }),
-                                            React.createElement('span', { className: "capitalize" }, column.replace(/_/g, ' '))
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    ),
-                    // Main Content
-                    React.createElement('div', { className: "flex-1 flex flex-col" },
-                        // Header
-                        React.createElement('div', { className: "bg-blue-600 text-white p-4 w-full" },
-                            React.createElement('div', { className: "flex items-center justify-between" },
-                                React.createElement('div', { className: "flex items-center space-x-2" },
-                                    React.createElement('div', { className: "w-6 h-6 bg-white rounded" }),
-                                    React.createElement('h1', { className: "text-xl font-semibold" }, "Store Leads")
-                                ),
-                                React.createElement('button', { 
-                                    onClick: () => setShowExportModal(true),
-                                    className: "flex items-center space-x-2 bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded transition-colors"
-                                },
-                                    React.createElement(Download, { size: 16 }),
-                                    React.createElement('span', null, "EXPORT")
-                                )
-                            )
-                        ),
-                        // Content
-                        React.createElement('div', { className: "flex-1 p-6 bg-gray-50" },
-                            React.createElement('div', { className: "mb-4" },
-                                React.createElement('div', { className: "flex items-center justify-between" },
-                                    React.createElement('div', null,
-                                        React.createElement('p', { className: "text-sm text-green-600" },
-                                            `✅ ${selectedCategory} records loaded from India`
-                                        )
-                                    ),
-                                    React.createElement('div', { className: "flex items-center space-x-2" },
-                                        React.createElement('button', {
-                                            onClick: () => handlePageChange(currentPage - 1),
-                                            disabled: currentPage <= 1 || isLoading,
-                                            className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                                        }, "Previous"),
-                                        React.createElement('span', { className: "px-3 py-1" }, `Page ${currentPage} of ${totalPages}`),
-                                        React.createElement('button', {
-                                            onClick: () => handlePageChange(currentPage + 1),
-                                            disabled: currentPage >= totalPages || isLoading,
-                                            className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                                        }, "Next")
-                                    )
-                                )
-                            ),
-                            React.createElement('div', { className: "bg-white rounded-lg shadow overflow-hidden" },
-                                isLoading ? 
-                                    React.createElement('div', { className: "flex items-center justify-center py-20" },
-                                        React.createElement('div', { className: "text-center" },
-                                            React.createElement(Loader, { className: "animate-spin mx-auto mb-4", size: 32 }),
-                                            React.createElement('p', { className: "text-gray-600" }, "Loading data...")
-                                        )
-                                    ) :
-                                    React.createElement('div', { className: "overflow-x-auto" },
-                                        React.createElement('table', { className: "w-full" },
-                                            React.createElement('thead', { className: "bg-gray-50" },
-                                                React.createElement('tr', null,
-                                                    React.createElement('th', { className: "px-4 py-3 text-left" },
-                                                        React.createElement('input', { type: "checkbox", className: "rounded border-gray-300" })
-                                                    ),
-                                                    visibleColumns.domain && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Domain"),
-                                                    visibleColumns.merchant_name && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Merchant Name"),
-                                                    visibleColumns.city && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "City"),
-                                                    visibleColumns.state && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "State"),
-                                                    visibleColumns.average_product_price && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Avg Price"),
-                                                    visibleColumns.platform && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Platform"),
-                                                    visibleColumns.platform_rank && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Rank"),
-                                                    visibleColumns.status && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Status"),
-                                                    visibleColumns.estimated_monthly_sales && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Est. Sales"),
-                                                    visibleColumns.emails && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Emails"),
-                                                    visibleColumns.phones && React.createElement('th', { className: "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase" }, "Phones")
-                                                )
-                                            ),
-                                            React.createElement('tbody', { className: "bg-white divide-y divide-gray-200" },
-                                                displayData.map((item) =>
-                                                    React.createElement('tr', { key: item.id, className: "hover:bg-gray-50" },
-                                                        React.createElement('td', { className: "px-4 py-3" },
-                                                            React.createElement('input', {
-                                                                type: "checkbox",
-                                                                checked: selectedRows.has(item.id),
-                                                                onChange: () => handleRowSelect(item.id),
-                                                                className: "rounded border-gray-300"
-                                                            })
-                                                        ),
-                                                        visibleColumns.domain && React.createElement('td', { className: "px-4 py-3 text-sm font-medium text-gray-900" },
-                                                            React.createElement('a', {
-                                                                href: `https://${item.domain}`,
-                                                                target: "_blank",
-                                                                rel: "noopener noreferrer",
-                                                                className: "text-blue-600 hover:text-blue-800 flex items-center space-x-1"
-                                                            },
-                                                                React.createElement('span', { className: "truncate max-w-40" }, item.domain),
-                                                                React.createElement(ExternalLink, { size: 12 })
-                                                            )
-                                                        ),
-                                                        visibleColumns.merchant_name && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.merchant_name || '-'),
-                                                        visibleColumns.city && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.city || '-'),
-                                                        visibleColumns.state && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.state || '-'),
-                                                        visibleColumns.average_product_price && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.average_product_price || '-'),
-                                                        visibleColumns.platform && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.platform || '-'),
-                                                        visibleColumns.platform_rank && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.platform_rank || '-'),
-                                                        visibleColumns.status && React.createElement('td', { className: "px-4 py-3 text-sm" },
-                                                            React.createElement('span', { className: "inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" },
-                                                                item.status || 'Active'
-                                                            )
-                                                        ),
-                                                        visibleColumns.estimated_monthly_sales && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.estimated_monthly_sales || '-'),
-                                                        visibleColumns.emails && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500 truncate max-w-32" }, item.emails || '-'),
-                                                        visibleColumns.phones && React.createElement('td', { className: "px-4 py-3 text-sm text-gray-500" }, item.phones || '-')
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                            ),
-                            // Bottom Pagination
-                            !isLoading && totalPages > 1 && React.createElement('div', { className: "flex items-center justify-center mt-6 space-x-2" },
-                                React.createElement('button', {
-                                    onClick: () => handlePageChange(1),
-                                    disabled: currentPage <= 1,
-                                    className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                                }, "First"),
-                                React.createElement('button', {
-                                    onClick: () => handlePageChange(currentPage - 1),
-                                    disabled: currentPage <= 1,
-                                    className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                                }, "Previous"),
-                                [...Array(Math.min(5, totalPages))].map((_, i) => {
-                                    const pageNum = Math.max(1, currentPage - 2) + i;
-                                    if (pageNum <= totalPages) {
-                                        return React.createElement('button', {
-                                            key: pageNum,
-                                            onClick: () => handlePageChange(pageNum),
-                                            className: `px-3 py-1 border rounded ${currentPage === pageNum ? 'bg-blue-600 text-white' : 'hover:bg-gray-50'}`
-                                        }, pageNum);
-                                    }
-                                    return null;
-                                }),
-                                React.createElement('button', {
-                                    onClick: () => handlePageChange(currentPage + 1),
-                                    disabled: currentPage >= totalPages,
-                                    className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                                }, "Next"),
-                                React.createElement('button', {
-                                    onClick: () => handlePageChange(totalPages),
-                                    disabled: currentPage >= totalPages,
-                                    className: "px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                                }, "Last")
-                            )
-                        )
-                    )
-                ),
-                // Export Modal
-                showExportModal && React.createElement('div', { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" },
-                    React.createElement('div', { className: "bg-white rounded-lg p-6 w-[600px] max-h-[80vh] overflow-y-auto" },
-                        React.createElement('h3', { className: "text-lg font-semibold mb-4" }, "Export Data"),
-                        React.createElement('div', { className: "space-y-3" },
-                            React.createElement('div', { className: "border rounded-lg p-4 bg-gray-50" },
-                                React.createElement('div', { className: "flex items-center justify-between mb-3" },
-                                    React.createElement('div', null,
-                                        React.createElement('div', { className: "font-medium" }, "📊 Export Current View"),
-                                        React.createElement('div', { className: "text-sm text-gray-600" }, "Download visible data as CSV with custom columns")
-                                    ),
-                                    React.createElement('button', {
-                                        onClick: () => setShowExportColumnFilter(!showExportColumnFilter),
-                                        className: "text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                    }, showExportColumnFilter ? 'Hide Columns' : 'Select Columns')
-                                ),
-                                showExportColumnFilter && React.createElement('div', { className: "mb-4 p-3 border rounded bg-white" },
-                                    React.createElement('
+</html>
