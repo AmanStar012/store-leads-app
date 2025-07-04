@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,48 +9,32 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getFirestore, collection, getDocs, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
+        
         // Your Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBcYqMIIiQTT3KgRI6nL9LnlaFlNHheRNc",
-            authDomain: "store-leads-app.firebaseapp.com",
-            databaseURL: "https://store-leads-app-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "store-leads-app",
-            storageBucket: "store-leads-app.firebasestorage.app",
-            messagingSenderId: "1003611905047",
-            appId: "1:1003611905047:web:030463a0ac285c819e1052",
-            measurementId: "G-45LGWSX3N8"
+            // Replace with your actual Firebase config
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
         };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
+        
         // Make Firebase available globally
         window.db = db;
         window.firebaseModules = { collection, getDocs, query, where, orderBy, limit };
     </script>
     <style>
-        .loading {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .modal {
-            backdrop-filter: blur(4px);
-        }
+        .loading { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .modal { backdrop-filter: blur(4px); }
     </style>
 </head>
-
 <body class="bg-gray-50">
     <div id="app">
         <div class="flex min-h-screen">
@@ -65,8 +48,7 @@
                             <span class="text-gray-400">📊</span>
                             <span class="text-gray-400">⬇️</span>
                             <button onclick="clearFilters()" class="text-blue-600 text-sm">Clear</button>
-                            <button onclick="toggleColumns()"
-                                class="text-blue-600 text-sm hover:text-blue-800">Columns</button>
+                            <button onclick="toggleColumns()" class="text-blue-600 text-sm hover:text-blue-800">Columns</button>
                             <span class="text-gray-400">🔧</span>
                         </div>
                     </div>
@@ -75,16 +57,16 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
-                            <input type="text" id="searchInput" onkeyup="filterData()"
-                                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Search domains...">
+                            <input type="text" id="searchInput" onkeyup="filterData()" 
+                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                   placeholder="Search domains...">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                        <select id="categorySelect" onchange="changeCategory()"
-                            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="categorySelect" onchange="changeCategory()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="Fashion & Apparel">Fashion & Apparel</option>
                             <option value="Beauty & Fitness">Beauty & Fitness</option>
                             <option value="Home & Garden">Home & Garden</option>
@@ -93,8 +75,8 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                        <select id="countrySelect" onchange="filterByCountry()"
-                            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="countrySelect" onchange="filterByCountry()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="All">All Countries</option>
                             <option value="India" selected>India</option>
                             <option value="USA">USA</option>
@@ -110,7 +92,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
                         <select id="platformSelect" onchange="filterByPlatform()"
-                            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="All">All Platforms</option>
                             <option value="Shopify" selected>Shopify</option>
                             <option value="WooCommerce">WooCommerce</option>
@@ -121,7 +103,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                         <select id="statusSelect" onchange="filterByStatus()"
-                            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="All" selected>All Status</option>
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
@@ -129,9 +111,25 @@
                     </div>
 
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                        <select id="sortSelect" onchange="applySorting()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">No Sorting</option>
+                            <option value="sales_asc">Sales (Low to High)</option>
+                            <option value="sales_desc">Sales (High to Low)</option>
+                            <option value="rank_asc">Rank (Best to Worst)</option>
+                            <option value="rank_desc">Rank (Worst to Best)</option>
+                            <option value="price_asc">Price (Low to High)</option>
+                            <option value="price_desc">Price (High to Low)</option>
+                            <option value="merchant_asc">Merchant (A-Z)</option>
+                            <option value="merchant_desc">Merchant (Z-A)</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
-                        <select id="companySizeSelect" onchange="filterByCompanySize()"
-                            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="companySizeSelect" onchange="filterByCompanySize()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="All">All Sizes</option>
                             <option value="1-10">1-10 employees</option>
                             <option value="11-50">11-50 employees</option>
@@ -145,48 +143,37 @@
                         <h3 class="text-sm font-medium text-gray-700 mb-3">Visible Columns</h3>
                         <div class="space-y-2 max-h-64 overflow-y-auto">
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-domain" checked onchange="toggleColumn('domain')"
-                                    class="mr-2"> Domain
+                                <input type="checkbox" id="col-domain" checked onchange="toggleColumn('domain')" class="mr-2"> Domain
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-merchant" checked onchange="toggleColumn('merchant')"
-                                    class="mr-2"> Merchant Name
+                                <input type="checkbox" id="col-merchant" checked onchange="toggleColumn('merchant')" class="mr-2"> Merchant Name
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-city" checked onchange="toggleColumn('city')"
-                                    class="mr-2"> City
+                                <input type="checkbox" id="col-city" checked onchange="toggleColumn('city')" class="mr-2"> City
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-state" checked onchange="toggleColumn('state')"
-                                    class="mr-2"> State
+                                <input type="checkbox" id="col-state" checked onchange="toggleColumn('state')" class="mr-2"> State
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-price" checked onchange="toggleColumn('price')"
-                                    class="mr-2"> Avg Price
+                                <input type="checkbox" id="col-price" checked onchange="toggleColumn('price')" class="mr-2"> Avg Price
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-platform" checked onchange="toggleColumn('platform')"
-                                    class="mr-2"> Platform
+                                <input type="checkbox" id="col-platform" checked onchange="toggleColumn('platform')" class="mr-2"> Platform
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-rank" checked onchange="toggleColumn('rank')"
-                                    class="mr-2"> Rank
+                                <input type="checkbox" id="col-rank" checked onchange="toggleColumn('rank')" class="mr-2"> Rank
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-status" checked onchange="toggleColumn('status')"
-                                    class="mr-2"> Status
+                                <input type="checkbox" id="col-status" checked onchange="toggleColumn('status')" class="mr-2"> Status
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-sales" checked onchange="toggleColumn('sales')"
-                                    class="mr-2"> Est. Sales
+                                <input type="checkbox" id="col-sales" checked onchange="toggleColumn('sales')" class="mr-2"> Est. Sales
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-emails" onchange="toggleColumn('emails')" class="mr-2">
-                                Emails
+                                <input type="checkbox" id="col-emails" onchange="toggleColumn('emails')" class="mr-2"> Emails
                             </label>
                             <label class="flex items-center text-sm">
-                                <input type="checkbox" id="col-phones" onchange="toggleColumn('phones')" class="mr-2">
-                                Phones
+                                <input type="checkbox" id="col-phones" onchange="toggleColumn('phones')" class="mr-2"> Phones
                             </label>
                         </div>
                     </div>
@@ -203,14 +190,9 @@
                             <h1 class="text-xl font-semibold">Store Leads</h1>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button onclick="testFirebaseURL()"
-                                class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition-colors">Test
-                                Firestore</button>
-                            <button onclick="loadSampleDataButton()"
-                                class="bg-green-500 hover:bg-green-600 px-3 py-1 rounded text-sm transition-colors">Refresh
-                                Data</button>
-                            <button onclick="openExportModal()"
-                                class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded transition-colors">
+                            <button onclick="testFirebaseURL()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition-colors">Test Firestore</button>
+                            <button onclick="loadSampleDataButton()" class="bg-green-500 hover:bg-green-600 px-3 py-1 rounded text-sm transition-colors">Refresh Data</button>
+                            <button onclick="openExportModal()" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded transition-colors">
                                 ⬇️ EXPORT
                             </button>
                         </div>
@@ -230,11 +212,9 @@
                                 </p>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <button onclick="prevPage()" id="prevBtn"
-                                    class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Previous</button>
+                                <button onclick="prevPage()" id="prevBtn" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Previous</button>
                                 <span id="pageInfo">Page 1 of 1</span>
-                                <button onclick="nextPage()" id="nextBtn"
-                                    class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Next</button>
+                                <button onclick="nextPage()" id="nextBtn" class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Next</button>
                             </div>
                         </div>
                     </div>
@@ -248,39 +228,27 @@
                                         <th class="px-4 py-3 text-left">
                                             <input type="checkbox" onchange="selectAll(this)">
                                         </th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-domain">
-                                            Domain</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-merchant">
-                                            Merchant Name</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-city">
-                                            City</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-state">
-                                            State</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-price">
-                                            Avg Price</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-platform">
-                                            Platform</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-rank">
-                                            Rank</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-status">
-                                            Status</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-sales">
-                                            Est. Sales</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-emails hidden">
-                                            Emails</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-phones hidden">
-                                            Phones</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-domain">Domain</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-merchant">Merchant Name</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-city">City</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-state">State</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-price">Avg Price</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-platform">Platform</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-rank cursor-pointer hover:bg-gray-100" onclick="sortByColumn('rank')">
+                                            <div class="flex items-center">
+                                                Rank 
+                                                <span id="rank-sort-icon" class="ml-1 text-gray-400">↕️</span>
+                                            </div>
+                                        </th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-status">Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-sales cursor-pointer hover:bg-gray-100" onclick="sortByColumn('sales')">
+                                            <div class="flex items-center">
+                                                Est. Sales 
+                                                <span id="sales-sort-icon" class="ml-1 text-gray-400">↕️</span>
+                                            </div>
+                                        </th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-emails hidden">Emails</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase col-phones hidden">Phones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tableBody" class="bg-white divide-y divide-gray-200">
@@ -295,20 +263,18 @@
     </div>
 
     <!-- Export Modal -->
-    <div id="exportModal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal">
+    <div id="exportModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal">
         <div class="bg-white rounded-lg p-6 w-[600px] max-h-[80vh] overflow-y-auto">
             <h3 class="text-lg font-semibold mb-4">Export Data</h3>
-
+            
             <div class="space-y-3">
-                <button onclick="exportToDrive()"
-                    class="w-full bg-green-600 text-white py-3 px-4 rounded hover:bg-green-700 transition-colors text-left">
+                <button onclick="exportToDrive()" class="w-full bg-green-600 text-white py-3 px-4 rounded hover:bg-green-700 transition-colors text-left">
                     <div class="font-medium">🔗 Download Full Dataset - Click Here</div>
                     <div class="text-sm opacity-90" id="driveDescription">
                         Complete Fashion & Apparel dataset - Click here to download
                     </div>
                 </button>
-
+                
                 <div class="border rounded-lg p-4 bg-gray-50">
                     <div class="flex items-center justify-between mb-3">
                         <div>
@@ -316,17 +282,15 @@
                             <div class="text-sm text-gray-600">Download visible data as CSV with custom columns</div>
                         </div>
                     </div>
-
-                    <button onclick="exportCurrentView()" id="exportBtn"
-                        class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
+                    
+                    <button onclick="exportCurrentView()" id="exportBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
                         Export CSV
                     </button>
                 </div>
             </div>
-
+            
             <div class="flex space-x-3 mt-6">
-                <button onclick="closeExportModal()"
-                    class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors">
+                <button onclick="closeExportModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors">
                     Cancel
                 </button>
             </div>
@@ -375,6 +339,7 @@
         var filteredData = [];
         var selectedRows = new Set();
         var isLoadingFromFirestore = false;
+        var currentSort = { column: null, direction: null }; // Track current sort state
 
         // Category mapping to Firestore collection names
         var categoryToCollection = {
@@ -403,16 +368,16 @@
             try {
                 isLoadingFromFirestore = true;
                 updateLoadingState(true);
-
+                
                 var collectionName = categoryToCollection[categoryName] || 'fashion_and_apparel';
                 console.log('Loading data from Firestore collection:', collectionName);
-
+                
                 var { collection, getDocs } = window.firebaseModules;
                 var querySnapshot = await getDocs(collection(window.db, collectionName));
-
+                
                 allData = [];
                 var index = 1;
-
+                
                 querySnapshot.forEach((doc) => {
                     var data = doc.data();
                     var item = {
@@ -437,22 +402,22 @@
                     };
                     allData.push(item);
                 });
-
+                
                 console.log('Loaded', allData.length, 'records from Firestore');
-                document.getElementById('statusText').textContent =
+                document.getElementById('statusText').textContent = 
                     '✅ ' + allData.length + ' ' + categoryName + ' records loaded from Firestore';
-
+                
                 filteredData = allData.slice();
                 isLoadingFromFirestore = false;
                 updateLoadingState(false);
                 renderTable();
                 updateCountryStats();
-
+                
             } catch (error) {
                 console.error('Error loading from Firestore:', error);
                 isLoadingFromFirestore = false;
                 updateLoadingState(false);
-                document.getElementById('statusText').textContent =
+                document.getElementById('statusText').textContent = 
                     '❌ Failed to load from Firestore, using sample data';
                 loadSampleData();
             }
@@ -502,8 +467,8 @@
             var startIndex = (currentPage - 1) * itemsPerPage;
             var endIndex = Math.min(startIndex + itemsPerPage, filtered);
             var showing = Math.min(itemsPerPage, filtered - startIndex);
-
-            document.getElementById('recordCount').textContent =
+            
+            document.getElementById('recordCount').textContent = 
                 'Showing ' + (startIndex + 1) + '-' + endIndex + ' of ' + filtered + ' records';
         }
 
@@ -519,7 +484,7 @@
                 var item = pageData[i];
                 var row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50';
-                row.innerHTML =
+                row.innerHTML = 
                     '<td class="px-4 py-3"><input type="checkbox" data-id="' + item.id + '" onchange="updateSelectedRows(this)"></td>' +
                     '<td class="px-4 py-3 text-sm font-medium text-gray-900 col-domain"><a href="https://' + item.domain + '" target="_blank" class="text-blue-600 hover:text-blue-800">' + item.domain + ' 🔗</a></td>' +
                     '<td class="px-4 py-3 text-sm text-gray-500 col-merchant">' + item.merchant + '</td>' +
@@ -559,19 +524,19 @@
         function updatePagination() {
             var totalPages = Math.ceil(filteredData.length / itemsPerPage);
             document.getElementById('pageInfo').textContent = 'Page ' + currentPage + ' of ' + totalPages;
-
+            
             var prevBtn = document.getElementById('prevBtn');
             var nextBtn = document.getElementById('nextBtn');
-
+            
             prevBtn.disabled = currentPage <= 1;
             nextBtn.disabled = currentPage >= totalPages;
-
+            
             if (prevBtn.disabled) {
                 prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
                 prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-
+            
             if (nextBtn.disabled) {
                 nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
             } else {
@@ -598,10 +563,10 @@
             var select = document.getElementById('categorySelect');
             currentCategory = select.value;
             currentPage = 1;
-
+            
             document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records...';
             document.getElementById('driveDescription').textContent = 'Complete ' + currentCategory + ' dataset - Click here to download';
-
+            
             // Load data from Firestore based on category
             loadDataFromFirestore(currentCategory);
         }
@@ -626,6 +591,110 @@
             applyAllFilters();
         }
 
+        // Sorting functions
+        function sortByColumn(column) {
+            if (currentSort.column === column) {
+                // Toggle direction if same column
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                // New column, start with ascending
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            // Update dropdown to reflect current sort
+            var sortValue = column + '_' + currentSort.direction;
+            document.getElementById('sortSelect').value = sortValue;
+            
+            applySorting();
+        }
+
+        function applySorting() {
+            var sortSelect = document.getElementById('sortSelect');
+            var sortValue = sortSelect.value;
+            
+            if (!sortValue) {
+                currentSort = { column: null, direction: null };
+                updateSortIcons();
+                applyAllFilters();
+                return;
+            }
+            
+            var [column, direction] = sortValue.split('_');
+            currentSort = { column: column, direction: direction };
+            
+            updateSortIcons();
+            
+            filteredData.sort(function(a, b) {
+                var aVal, bVal;
+                
+                switch (column) {
+                    case 'sales':
+                        // Extract numeric value from sales string (e.g., "$44250" -> 44250)
+                        aVal = parseFloat(a.sales.replace(/[$,]/g, '')) || 0;
+                        bVal = parseFloat(b.sales.replace(/[$,]/g, '')) || 0;
+                        break;
+                    case 'rank':
+                        aVal = parseInt(a.rank) || 0;
+                        bVal = parseInt(b.rank) || 0;
+                        break;
+                    case 'price':
+                        // Extract numeric value from price string (e.g., "₹1870" -> 1870)
+                        aVal = parseFloat(a.price.replace(/[₹,$]/g, '')) || 0;
+                        bVal = parseFloat(b.price.replace(/[₹,$]/g, '')) || 0;
+                        break;
+                    case 'merchant':
+                        aVal = a.merchant.toLowerCase();
+                        bVal = b.merchant.toLowerCase();
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (direction === 'asc') {
+                    if (typeof aVal === 'string') {
+                        return aVal.localeCompare(bVal);
+                    }
+                    return aVal - bVal;
+                } else {
+                    if (typeof aVal === 'string') {
+                        return bVal.localeCompare(aVal);
+                    }
+                    return bVal - aVal;
+                }
+            });
+            
+            currentPage = 1; // Reset to first page after sorting
+            renderTable();
+        }
+
+        function updateSortIcons() {
+            // Reset all icons
+            var rankIcon = document.getElementById('rank-sort-icon');
+            var salesIcon = document.getElementById('sales-sort-icon');
+            
+            if (rankIcon) rankIcon.textContent = '↕️';
+            if (salesIcon) salesIcon.textContent = '↕️';
+            
+            // Update active column icon
+            if (currentSort.column && currentSort.direction) {
+                var iconElement = document.getElementById(currentSort.column + '-sort-icon');
+                if (iconElement) {
+                    iconElement.textContent = currentSort.direction === 'asc' ? '↑' : '↓';
+                    iconElement.classList.remove('text-gray-400');
+                    iconElement.classList.add('text-blue-600');
+                }
+            }
+            
+            // Reset other icons to gray
+            [rankIcon, salesIcon].forEach(function(icon) {
+                if (icon && (!currentSort.column || !icon.id.includes(currentSort.column))) {
+                    icon.classList.remove('text-blue-600');
+                    icon.classList.add('text-gray-400');
+                }
+            });
+        }
+
         function applyAllFilters() {
             var searchTerm = document.getElementById('searchInput').value.toLowerCase();
             var country = document.getElementById('countrySelect').value;
@@ -633,12 +702,12 @@
             var status = document.getElementById('statusSelect').value;
             var companySize = document.getElementById('companySizeSelect').value;
 
-            filteredData = allData.filter(function (item) {
-                var matchSearch = !searchTerm ||
+            filteredData = allData.filter(function(item) {
+                var matchSearch = !searchTerm || 
                     item.domain.toLowerCase().includes(searchTerm) ||
                     item.merchant.toLowerCase().includes(searchTerm) ||
                     item.city.toLowerCase().includes(searchTerm);
-
+                
                 var matchCountry = country === 'All' || item.country === country;
                 var matchPlatform = platform === 'All' || item.platform === platform;
                 var matchStatus = status === 'All' || item.status === status;
@@ -647,22 +716,27 @@
                 return matchSearch && matchCountry && matchPlatform && matchStatus && matchCompanySize;
             });
 
-            currentPage = 1;
-            renderTable();
-            updateCountryStats();
+            // Apply current sorting after filtering
+            if (currentSort.column && currentSort.direction) {
+                applySorting();
+            } else {
+                currentPage = 1;
+                renderTable();
+                updateCountryStats();
+            }
         }
 
         function updateCountryStats() {
             var stats = {};
-            allData.forEach(function (item) {
+            allData.forEach(function(item) {
                 stats[item.country] = (stats[item.country] || 0) + 1;
             });
 
             var statsHtml = '';
-            Object.keys(stats).forEach(function (country) {
+            Object.keys(stats).forEach(function(country) {
                 statsHtml += '<div>' + country + ': ' + stats[country] + ' records</div>';
             });
-
+            
             document.getElementById('countryStats').innerHTML = statsHtml;
         }
 
@@ -672,7 +746,12 @@
             document.getElementById('platformSelect').value = 'All';
             document.getElementById('statusSelect').value = 'All';
             document.getElementById('companySizeSelect').value = 'All';
-
+            document.getElementById('sortSelect').value = '';
+            
+            // Reset sorting
+            currentSort = { column: null, direction: null };
+            updateSortIcons();
+            
             applyAllFilters();
         }
 
@@ -684,8 +763,8 @@
         function toggleColumn(columnName) {
             var elements = document.querySelectorAll('.col-' + columnName);
             var checkbox = document.getElementById('col-' + columnName);
-
-            elements.forEach(function (element) {
+            
+            elements.forEach(function(element) {
                 if (checkbox.checked) {
                     element.classList.remove('hidden');
                 } else {
@@ -709,7 +788,7 @@
 
         function exportCurrentView() {
             var csvContent = "data:text/csv;charset=utf-8,";
-
+            
             // Headers
             var headers = [];
             var visibleColumns = [
@@ -725,19 +804,19 @@
                 { key: 'emails', name: 'Emails', visible: !document.querySelector('.col-emails').classList.contains('hidden') },
                 { key: 'phones', name: 'Phones', visible: !document.querySelector('.col-phones').classList.contains('hidden') }
             ];
-
-            visibleColumns.forEach(function (col) {
+            
+            visibleColumns.forEach(function(col) {
                 if (col.visible) {
                     headers.push(col.name);
                 }
             });
-
+            
             csvContent += headers.join(",") + "\r\n";
-
+            
             // Data rows
-            filteredData.forEach(function (item) {
+            filteredData.forEach(function(item) {
                 var row = [];
-                visibleColumns.forEach(function (col) {
+                visibleColumns.forEach(function(col) {
                     if (col.visible) {
                         var value = item[col.key] || '';
                         // Escape commas and quotes in CSV
@@ -758,7 +837,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
+            
             closeExportModal();
         }
 
@@ -767,7 +846,7 @@
                 alert('❌ Firebase not configured!\n\nPlease update your Firebase configuration in the script section.');
                 return;
             }
-
+            
             alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n📊 Collections available:\n- fashion_and_apparel\n- beauty_and_fitness\n- home_and_garden');
         }
 
@@ -776,13 +855,13 @@
                 alert('⏳ Already loading data from Firestore...');
                 return;
             }
-
+            
             alert('🔄 Refreshing data from Firestore...\n\nReloading ' + currentCategory + ' records from your Cloud Firestore database.');
             loadDataFromFirestore(currentCategory);
         }
 
         // Initialize the application
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Try loading from Firestore first, fallback to sample data
             setTimeout(() => {
                 loadDataFromFirestore(currentCategory);
@@ -790,19 +869,18 @@
         });
 
         // Close modal when clicking outside
-        document.getElementById('exportModal').addEventListener('click', function (e) {
+        document.getElementById('exportModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeExportModal();
             }
         });
 
         // Keyboard shortcuts
-        document.addEventListener('keydown', function (e) {
+        document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeExportModal();
             }
         });
     </script>
 </body>
-
 </html>
