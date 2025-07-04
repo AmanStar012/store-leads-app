@@ -10,24 +10,37 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getFirestore, collection, getDocs, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         
-        // Your Firebase configuration
+        // Your Firebase configuration - UPDATE THESE VALUES
         const firebaseConfig = {
-     apiKey: "AIzaSyBcYqMIIiQTT3KgRI6nL9LnlaFlNHheRNc",
-     authDomain: "store-leads-app.firebaseapp.com",
-     databaseURL: "https://store-leads-app-default-rtdb.asia-southeast1.firebasedatabase.app",
-     projectId: "store-leads-app",
-     storageBucket: "store-leads-app.firebasestorage.app",
-     messagingSenderId: "1003611905047",
-     appId: "1:1003611905047:web:030463a0ac285c819e1052",
-    measurementId: "G-45LGWSX3N8"
-         };
+        apiKey: "AIzaSyBcYqMIIiQTT3KgRI6nL9LnlaFlNHheRNc",
+        authDomain: "store-leads-app.firebaseapp.com",
+        databaseURL: "https://store-leads-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "store-leads-app",
+        storageBucket: "store-leads-app.firebasestorage.app",
+        messagingSenderId: "1003611905047",
+        appId: "1:1003611905047:web:030463a0ac285c819e1052",
+        measurementId: "G-45LGWSX3N8"
+        };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        let app, db;
+        try {
+            // Check if config is properly set
+            if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+                console.log('Firebase config not set, using sample data');
+                window.db = null;
+            } else {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                window.db = db;
+                console.log('Firebase initialized successfully');
+            }
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            window.db = null;
+        }
         
         // Make Firebase available globally
-        window.db = db;
         window.firebaseModules = { collection, getDocs, query, where, orderBy, limit };
     </script>
     <style>
@@ -71,6 +84,19 @@
                             <option value="Fashion & Apparel">Fashion & Apparel</option>
                             <option value="Beauty & Fitness">Beauty & Fitness</option>
                             <option value="Home & Garden">Home & Garden</option>
+                            <option value="Food & Drink">Food & Drink</option>
+                            <option value="Health">Health</option>
+                            <option value="Toys & Hobbies">Toys & Hobbies</option>
+                            <option value="Consumer Electronics">Consumer Electronics</option>
+                            <option value="Business & Industrial">Business & Industrial</option>
+                            <option value="Arts & Entertainment">Arts & Entertainment</option>
+                            <option value="Auto & Vehicles">Auto & Vehicles</option>
+                            <option value="Gifts & Special Events">Gifts & Special Events</option>
+                            <option value="Pets & Animals">Pets & Animals</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Jobs & Education">Jobs & Education</option>
+                            <option value="Travel">Travel</option>
+                            <option value="Finance">Finance</option>
                         </select>
                     </div>
 
@@ -272,7 +298,10 @@
                 <button onclick="exportToDrive()" class="w-full bg-green-600 text-white py-3 px-4 rounded hover:bg-green-700 transition-colors text-left">
                     <div class="font-medium">🔗 Download Full Dataset - Click Here</div>
                     <div class="text-sm opacity-90" id="driveDescription">
-                        Complete Fashion & Apparel dataset - Click here to download
+                        Complete Fashion & Apparel dataset from Google Drive
+                    </div>
+                    <div class="text-xs opacity-75 mt-1" id="driveStatus">
+                        ✅ Direct download available
                     </div>
                 </button>
                 
@@ -342,7 +371,45 @@
         var isLoadingFromFirestore = false;
         var currentSort = { column: null, direction: null }; // Track current sort state
 
-        // Category mapping to Firestore collection names
+        // Category mapping to Firestore collection names (matching your Firebase collections)
+        var categoryToCollection = {
+            'Fashion & Apparel': 'fashion_and_apparel',
+            'Beauty & Fitness': 'beauty_and_fitness',
+            'Home & Garden': 'home_and_garden',
+            'Food & Drink': 'food_and_drink',
+            'Health': 'health',
+            'Toys & Hobbies': 'toys_and_hobbies',
+            'Consumer Electronics': 'consumer_electronics',
+            'Business & Industrial': 'business_and_industrial',
+            'Arts & Entertainment': 'arts_and_entertainment',
+            'Auto & Vehicles': 'auto_and_vehicles',
+            'Gifts & Special Events': 'gifts_and_special_events',
+            'Pets & Animals': 'pets_and_animals',
+            'Sports': 'sports',
+            'Jobs & Education': 'jobs_and_education',
+            'Travel': 'travel',
+            'Finance': 'finance'
+        };
+
+        // Google Drive download links for each category
+        var categoryDownloadLinks = {
+            'Fashion & Apparel': 'https://drive.google.com/file/d/your-fashion-file-id/view?usp=sharing',
+            'Beauty & Fitness': 'https://drive.google.com/file/d/your-beauty-file-id/view?usp=sharing',
+            'Home & Garden': 'https://drive.google.com/file/d/your-home-file-id/view?usp=sharing',
+            'Food & Drink': 'https://drive.google.com/file/d/1bey7FNE5lV0YsNKxcBcRvmMEQqwN7gaW/view?usp=sharing',
+            'Health': 'https://drive.google.com/file/d/1WOQoVnHN5sofp_Rt0HYH1Vt4vfHvLQJc/view?usp=sharing',
+            'Toys & Hobbies': 'https://drive.google.com/file/d/1tbaAfHcvURfdovUqUD0iguTmvenxnbeT/view?usp=sharing',
+            'Consumer Electronics': 'https://drive.google.com/file/d/1hkmmfG4vaceCrHZmuU7BRfPhz0mfKVul/view?usp=sharing',
+            'Business & Industrial': 'https://drive.google.com/file/d/131RTDXyO1k4xIllp07wlBhgZSVyhy3Xc/view?usp=sharing',
+            'Arts & Entertainment': 'https://drive.google.com/file/d/1BHNSlI88wAGATvt42S6mZScpSPeRNEf-/view?usp=sharing',
+            'Auto & Vehicles': 'https://drive.google.com/file/d/1oQFOUryJ6_uH0HpLI4Ee_9JwBu2hRMlM/view?usp=sharing',
+            'Gifts & Special Events': 'https://drive.google.com/file/d/1wFv8FRclMDLQiROlei6jkllASA1wgxGz/view?usp=sharing',
+            'Pets & Animals': 'https://drive.google.com/file/d/1wdfUPL8wO5AQFhsod9eVeYrhGkvmtpAX/view?usp=sharing',
+            'Sports': 'https://drive.google.com/file/d/1KtQtC-yXDPAeViJF0Mgra5hX4PKlPApu/view?usp=sharing',
+            'Jobs & Education': 'https://drive.google.com/file/d/1yhlVnm5neE0ylBmwM9GBV-rcTAK2zmch/view?usp=sharing',
+            'Travel': 'https://drive.google.com/file/d/1wUnF3B79n1r5DSB9KGcV3zoxGw5Nx3Tf/view?usp=sharing',
+            'Finance': 'https://drive.google.com/file/d/1fHajih_Od8YWvXN-veQWCjpXba-zg_y7/view?usp=sharing'
+        };store collection names
         var categoryToCollection = {
             'Fashion & Apparel': 'fashion_and_apparel',
             'Beauty & Fitness': 'beauty_and_fitness',
@@ -379,32 +446,40 @@
                 allData = [];
                 var index = 1;
                 
+                if (querySnapshot.empty) {
+                    console.log('No documents found in collection:', collectionName);
+                    document.getElementById('statusText').textContent = 
+                        '⚠️ No data found for ' + categoryName + ' in Firestore';
+                    loadSampleData();
+                    return;
+                }
+                
                 querySnapshot.forEach((doc) => {
                     var data = doc.data();
                     var item = {
                         id: index++,
-                        domain: data.domain || 'N/A',
-                        merchant: data.merchant_name || data.name || 'Unknown',
+                        domain: data.domain || data.website || 'N/A',
+                        merchant: data.merchant_name || data.name || data.company_name || 'Unknown',
                         city: data.city || 'N/A',
                         state: data.state || 'N/A',
                         country: data.region || data.country || 'India',
-                        price: data.maximum_product_price || data.minimum_product_price || '₹0',
+                        price: formatPrice(data.maximum_product_price || data.minimum_product_price || data.price),
                         platform: data.platform || 'Shopify',
-                        rank: data.platform_rank || Math.floor(Math.random() * 10000),
-                        status: 'Active',
-                        sales: data.estimated_monthly_sales || '$0',
-                        emails: data.emails || 'N/A',
-                        phones: data.phones || 'N/A',
+                        rank: data.platform_rank || data.rank || Math.floor(Math.random() * 10000),
+                        status: data.status || 'Active',
+                        sales: formatSales(data.estimated_monthly_sales || data.sales),
+                        emails: data.emails || data.email || 'N/A',
+                        phones: data.phones || data.phone || 'N/A',
                         employees: data.employee_count || Math.floor(Math.random() * 1000) + 1,
                         companySize: getCompanySize(data.employee_count),
                         category: categoryName,
-                        description: data.meta_description || '',
-                        linkedinUrl: data.linkedin_url || ''
+                        description: data.meta_description || data.description || '',
+                        linkedinUrl: data.linkedin_url || data.linkedin || ''
                     };
                     allData.push(item);
                 });
                 
-                console.log('Loaded', allData.length, 'records from Firestore');
+                console.log('Loaded', allData.length, 'records from Firestore collection:', collectionName);
                 document.getElementById('statusText').textContent = 
                     '✅ ' + allData.length + ' ' + categoryName + ' records loaded from Firestore';
                 
@@ -419,10 +494,21 @@
                 isLoadingFromFirestore = false;
                 updateLoadingState(false);
                 document.getElementById('statusText').textContent = 
-                    '❌ Failed to load from Firestore, using sample data';
+                    '❌ Failed to load ' + categoryName + ' from Firestore: ' + error.message;
                 loadSampleData();
             }
         }
+
+        function formatPrice(price) {
+            if (!price) return '₹0';
+            if (typeof price === 'string' && price.includes('₹')) return price;
+            if (typeof price === 'number') return '₹' + price.toLocaleString();
+            return '₹' + String(price).replace(/[^\d]/g, '');
+        }
+
+        function formatSales(sales) {
+            if (!sales) return '$0';
+            if (typeof sales === 'string' && sales.includes('
 
         function updateLoadingState(loading) {
             var statusElement = document.getElementById('statusText');
@@ -566,7 +652,20 @@
             currentPage = 1;
             
             document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records...';
-            document.getElementById('driveDescription').textContent = 'Complete ' + currentCategory + ' dataset - Click here to download';
+            
+            // Update export modal descriptions
+            document.getElementById('driveDescription').textContent = 'Complete ' + currentCategory + ' dataset from Google Drive';
+            
+            // Check if download is available for this category
+            var hasDownload = categoryDownloadLinks[currentCategory];
+            var statusElement = document.getElementById('driveStatus');
+            if (hasDownload) {
+                statusElement.textContent = '✅ Direct download available';
+                statusElement.className = 'text-xs opacity-75 mt-1 text-green-200';
+            } else {
+                statusElement.textContent = '⏳ Data being processed';
+                statusElement.className = 'text-xs opacity-75 mt-1 text-yellow-200';
+            }
             
             // Load data from Firestore based on category
             loadDataFromFirestore(currentCategory);
@@ -783,8 +882,535 @@
         }
 
         function exportToDrive() {
-            // Simulate export to external service
-            alert('🚀 Exporting full dataset to external service...\n\nThis would normally connect to your data source or API to download the complete dataset.');
+            var currentCategoryLink = categoryDownloadLinks[currentCategory];
+            
+            if (currentCategoryLink) {
+                // Convert Google Drive view link to download link
+                var fileId = currentCategoryLink.match(/\/d\/([a-zA-Z0-9-_]+)/);
+                if (fileId && fileId[1]) {
+                    var downloadUrl = 'https://drive.google.com/uc?export=download&id=' + fileId[1];
+                    
+                    // Open download link in new tab
+                    window.open(downloadUrl, '_blank');
+                    
+                    // Show success message
+                    alert('📊 Downloading ' + currentCategory + ' dataset...\n\n✅ Your download should start automatically.\n📁 File contains complete ' + currentCategory + ' leads data from India.');
+                } else {
+                    // Fallback to view link
+                    window.open(currentCategoryLink, '_blank');
+                    alert('📂 Opening ' + currentCategory + ' dataset...\n\nClick the download button in Google Drive to get the file.');
+                }
+            } else {
+                alert('❌ Download link not available for ' + currentCategory + '\n\nThis category data is still being processed.');
+            }
+            
+            closeExportModal();
+        }
+
+        function exportCurrentView() {
+            var csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Headers
+            var headers = [];
+            var visibleColumns = [
+                { key: 'domain', name: 'Domain', visible: !document.querySelector('.col-domain').classList.contains('hidden') },
+                { key: 'merchant', name: 'Merchant Name', visible: !document.querySelector('.col-merchant').classList.contains('hidden') },
+                { key: 'city', name: 'City', visible: !document.querySelector('.col-city').classList.contains('hidden') },
+                { key: 'state', name: 'State', visible: !document.querySelector('.col-state').classList.contains('hidden') },
+                { key: 'price', name: 'Avg Price', visible: !document.querySelector('.col-price').classList.contains('hidden') },
+                { key: 'platform', name: 'Platform', visible: !document.querySelector('.col-platform').classList.contains('hidden') },
+                { key: 'rank', name: 'Rank', visible: !document.querySelector('.col-rank').classList.contains('hidden') },
+                { key: 'status', name: 'Status', visible: !document.querySelector('.col-status').classList.contains('hidden') },
+                { key: 'sales', name: 'Est. Sales', visible: !document.querySelector('.col-sales').classList.contains('hidden') },
+                { key: 'emails', name: 'Emails', visible: !document.querySelector('.col-emails').classList.contains('hidden') },
+                { key: 'phones', name: 'Phones', visible: !document.querySelector('.col-phones').classList.contains('hidden') }
+            ];
+            
+            visibleColumns.forEach(function(col) {
+                if (col.visible) {
+                    headers.push(col.name);
+                }
+            });
+            
+            csvContent += headers.join(",") + "\r\n";
+            
+            // Data rows
+            filteredData.forEach(function(item) {
+                var row = [];
+                visibleColumns.forEach(function(col) {
+                    if (col.visible) {
+                        var value = item[col.key] || '';
+                        // Escape commas and quotes in CSV
+                        if (value.toString().includes(',') || value.toString().includes('"')) {
+                            value = '"' + value.toString().replace(/"/g, '""') + '"';
+                        }
+                        row.push(value);
+                    }
+                });
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            // Download the CSV
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "store_leads_" + currentCategory.replace(/\s+/g, '_').toLowerCase() + "_" + new Date().toISOString().split('T')[0] + ".csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            closeExportModal();
+        }
+
+        function testFirebaseURL() {
+            if (!window.db) {
+                alert('❌ Firebase not configured!\n\nPlease update your Firebase configuration in the script section.');
+                return;
+            }
+            
+            var availableCollections = Object.values(categoryToCollection).join('\n- ');
+            alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n\n📊 Available Collections:\n- ' + availableCollections + '\n\n🎯 Current Category: ' + currentCategory + '\n🗂️ Collection: ' + categoryToCollection[currentCategory]);
+        }
+
+        function loadSampleDataButton() {
+            if (isLoadingFromFirestore) {
+                alert('⏳ Already loading data from Firestore...');
+                return;
+            }
+            
+            alert('🔄 Refreshing data from Firestore...\n\nReloading ' + currentCategory + ' records from your Cloud Firestore database.');
+            loadDataFromFirestore(currentCategory);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Firebase is configured, otherwise use sample data immediately
+            if (!window.db) {
+                console.log('Loading sample data (Firebase not configured)');
+                loadSampleData();
+                renderTable();
+                updateCountryStats();
+            } else {
+                // Try loading from Firestore
+                setTimeout(() => {
+                    loadDataFromFirestore(currentCategory);
+                }, 100);
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExportModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeExportModal();
+            }
+        });
+    </script>
+</body>
+</html>)) return sales;
+            if (typeof sales === 'number') return '
+
+        function updateLoadingState(loading) {
+            var statusElement = document.getElementById('statusText');
+            if (loading) {
+                statusElement.innerHTML = '🔄 Loading data from Firestore...';
+                statusElement.className = 'text-sm text-blue-600';
+            } else {
+                statusElement.className = 'text-sm text-green-600';
+            }
+        }
+
+        // Fallback to sample data
+        function loadSampleData() {
+            allData = [];
+            for (var i = 0; i < businessData.length; i++) {
+                var row = businessData[i];
+                allData.push({
+                    id: i + 1,
+                    domain: row.domain,
+                    merchant: row.merchant,
+                    city: row.city,
+                    state: row.state,
+                    country: 'India',
+                    price: row.price,
+                    platform: row.platform,
+                    rank: row.rank,
+                    status: row.status,
+                    sales: row.sales,
+                    emails: row.emails,
+                    phones: row.phones,
+                    employees: Math.floor(Math.random() * 1000) + 1,
+                    companySize: getCompanySize(Math.floor(Math.random() * 1000) + 1),
+                    category: currentCategory
+                });
+            }
+            filteredData = allData.slice();
+            updateRecordCount();
+        }
+
+        function updateRecordCount() {
+            var total = allData.length;
+            var filtered = filteredData.length;
+            var startIndex = (currentPage - 1) * itemsPerPage;
+            var endIndex = Math.min(startIndex + itemsPerPage, filtered);
+            var showing = Math.min(itemsPerPage, filtered - startIndex);
+            
+            document.getElementById('recordCount').textContent = 
+                'Showing ' + (startIndex + 1) + '-' + endIndex + ' of ' + filtered + ' records';
+        }
+
+        function renderTable() {
+            var startIndex = (currentPage - 1) * itemsPerPage;
+            var endIndex = startIndex + itemsPerPage;
+            var pageData = filteredData.slice(startIndex, endIndex);
+
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            for (var i = 0; i < pageData.length; i++) {
+                var item = pageData[i];
+                var row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = 
+                    '<td class="px-4 py-3"><input type="checkbox" data-id="' + item.id + '" onchange="updateSelectedRows(this)"></td>' +
+                    '<td class="px-4 py-3 text-sm font-medium text-gray-900 col-domain"><a href="https://' + item.domain + '" target="_blank" class="text-blue-600 hover:text-blue-800">' + item.domain + ' 🔗</a></td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-merchant">' + item.merchant + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-city">' + item.city + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-state">' + item.state + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-price">' + item.price + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-platform">' + item.platform + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-rank">#' + item.rank + '</td>' +
+                    '<td class="px-4 py-3 text-sm col-status"><span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">' + item.status + '</span></td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-sales">' + item.sales + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-emails hidden">' + item.emails + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-phones hidden">' + item.phones + '</td>';
+                tbody.appendChild(row);
+            }
+
+            updatePagination();
+            updateRecordCount();
+        }
+
+        function updateSelectedRows(checkbox) {
+            var id = parseInt(checkbox.dataset.id);
+            if (checkbox.checked) {
+                selectedRows.add(id);
+            } else {
+                selectedRows.delete(id);
+            }
+        }
+
+        function selectAll(checkbox) {
+            var checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = checkbox.checked;
+                updateSelectedRows(checkboxes[i]);
+            }
+        }
+
+        function updatePagination() {
+            var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            document.getElementById('pageInfo').textContent = 'Page ' + currentPage + ' of ' + totalPages;
+            
+            var prevBtn = document.getElementById('prevBtn');
+            var nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            
+            if (prevBtn.disabled) {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            if (nextBtn.disabled) {
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function nextPage() {
+            var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+        function changeCategory() {
+            var select = document.getElementById('categorySelect');
+            currentCategory = select.value;
+            currentPage = 1;
+            
+            document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records...';
+            
+            // Update export modal descriptions
+            document.getElementById('driveDescription').textContent = 'Complete ' + currentCategory + ' dataset from Google Drive';
+            
+            // Check if download is available for this category
+            var hasDownload = categoryDownloadLinks[currentCategory];
+            var statusElement = document.getElementById('driveStatus');
+            if (hasDownload) {
+                statusElement.textContent = '✅ Direct download available';
+                statusElement.className = 'text-xs opacity-75 mt-1 text-green-200';
+            } else {
+                statusElement.textContent = '⏳ Data being processed';
+                statusElement.className = 'text-xs opacity-75 mt-1 text-yellow-200';
+            }
+            
+            // Load data from Firestore based on category
+            loadDataFromFirestore(currentCategory);
+        }
+
+        function filterData() {
+            applyAllFilters();
+        }
+
+        function filterByCountry() {
+            applyAllFilters();
+        }
+
+        function filterByPlatform() {
+            applyAllFilters();
+        }
+
+        function filterByStatus() {
+            applyAllFilters();
+        }
+
+        function filterByCompanySize() {
+            applyAllFilters();
+        }
+
+        // Sorting functions
+        function sortByColumn(column) {
+            if (currentSort.column === column) {
+                // Toggle direction if same column
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                // New column, start with ascending
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            // Update dropdown to reflect current sort
+            var sortValue = column + '_' + currentSort.direction;
+            document.getElementById('sortSelect').value = sortValue;
+            
+            applySorting();
+        }
+
+        function applySorting() {
+            var sortSelect = document.getElementById('sortSelect');
+            var sortValue = sortSelect.value;
+            
+            if (!sortValue) {
+                currentSort = { column: null, direction: null };
+                updateSortIcons();
+                applyAllFilters();
+                return;
+            }
+            
+            var [column, direction] = sortValue.split('_');
+            currentSort = { column: column, direction: direction };
+            
+            updateSortIcons();
+            
+            filteredData.sort(function(a, b) {
+                var aVal, bVal;
+                
+                switch (column) {
+                    case 'sales':
+                        // Extract numeric value from sales string (e.g., "$44250" -> 44250)
+                        aVal = parseFloat(a.sales.replace(/[$,]/g, '')) || 0;
+                        bVal = parseFloat(b.sales.replace(/[$,]/g, '')) || 0;
+                        break;
+                    case 'rank':
+                        aVal = parseInt(a.rank) || 0;
+                        bVal = parseInt(b.rank) || 0;
+                        break;
+                    case 'price':
+                        // Extract numeric value from price string (e.g., "₹1870" -> 1870)
+                        aVal = parseFloat(a.price.replace(/[₹,$]/g, '')) || 0;
+                        bVal = parseFloat(b.price.replace(/[₹,$]/g, '')) || 0;
+                        break;
+                    case 'merchant':
+                        aVal = a.merchant.toLowerCase();
+                        bVal = b.merchant.toLowerCase();
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (direction === 'asc') {
+                    if (typeof aVal === 'string') {
+                        return aVal.localeCompare(bVal);
+                    }
+                    return aVal - bVal;
+                } else {
+                    if (typeof aVal === 'string') {
+                        return bVal.localeCompare(aVal);
+                    }
+                    return bVal - aVal;
+                }
+            });
+            
+            currentPage = 1; // Reset to first page after sorting
+            renderTable();
+        }
+
+        function updateSortIcons() {
+            // Reset all icons
+            var rankIcon = document.getElementById('rank-sort-icon');
+            var salesIcon = document.getElementById('sales-sort-icon');
+            
+            if (rankIcon) rankIcon.textContent = '↕️';
+            if (salesIcon) salesIcon.textContent = '↕️';
+            
+            // Update active column icon
+            if (currentSort.column && currentSort.direction) {
+                var iconElement = document.getElementById(currentSort.column + '-sort-icon');
+                if (iconElement) {
+                    iconElement.textContent = currentSort.direction === 'asc' ? '↑' : '↓';
+                    iconElement.classList.remove('text-gray-400');
+                    iconElement.classList.add('text-blue-600');
+                }
+            }
+            
+            // Reset other icons to gray
+            [rankIcon, salesIcon].forEach(function(icon) {
+                if (icon && (!currentSort.column || !icon.id.includes(currentSort.column))) {
+                    icon.classList.remove('text-blue-600');
+                    icon.classList.add('text-gray-400');
+                }
+            });
+        }
+
+        function applyAllFilters() {
+            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var country = document.getElementById('countrySelect').value;
+            var platform = document.getElementById('platformSelect').value;
+            var status = document.getElementById('statusSelect').value;
+            var companySize = document.getElementById('companySizeSelect').value;
+
+            filteredData = allData.filter(function(item) {
+                var matchSearch = !searchTerm || 
+                    item.domain.toLowerCase().includes(searchTerm) ||
+                    item.merchant.toLowerCase().includes(searchTerm) ||
+                    item.city.toLowerCase().includes(searchTerm);
+                
+                var matchCountry = country === 'All' || item.country === country;
+                var matchPlatform = platform === 'All' || item.platform === platform;
+                var matchStatus = status === 'All' || item.status === status;
+                var matchCompanySize = companySize === 'All' || item.companySize === companySize;
+
+                return matchSearch && matchCountry && matchPlatform && matchStatus && matchCompanySize;
+            });
+
+            // Apply current sorting after filtering
+            if (currentSort.column && currentSort.direction) {
+                applySorting();
+            } else {
+                currentPage = 1;
+                renderTable();
+                updateCountryStats();
+            }
+        }
+
+        function updateCountryStats() {
+            var stats = {};
+            allData.forEach(function(item) {
+                stats[item.country] = (stats[item.country] || 0) + 1;
+            });
+
+            var statsHtml = '';
+            Object.keys(stats).forEach(function(country) {
+                statsHtml += '<div>' + country + ': ' + stats[country] + ' records</div>';
+            });
+            
+            document.getElementById('countryStats').innerHTML = statsHtml;
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('countrySelect').value = 'India';
+            document.getElementById('platformSelect').value = 'All';
+            document.getElementById('statusSelect').value = 'All';
+            document.getElementById('companySizeSelect').value = 'All';
+            document.getElementById('sortSelect').value = '';
+            
+            // Reset sorting
+            currentSort = { column: null, direction: null };
+            updateSortIcons();
+            
+            applyAllFilters();
+        }
+
+        function toggleColumns() {
+            var columnFilter = document.getElementById('columnFilter');
+            columnFilter.classList.toggle('hidden');
+        }
+
+        function toggleColumn(columnName) {
+            var elements = document.querySelectorAll('.col-' + columnName);
+            var checkbox = document.getElementById('col-' + columnName);
+            
+            elements.forEach(function(element) {
+                if (checkbox.checked) {
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
+                }
+            });
+        }
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function exportToDrive() {
+            var currentCategoryLink = categoryDownloadLinks[currentCategory];
+            
+            if (currentCategoryLink) {
+                // Convert Google Drive view link to download link
+                var fileId = currentCategoryLink.match(/\/d\/([a-zA-Z0-9-_]+)/);
+                if (fileId && fileId[1]) {
+                    var downloadUrl = 'https://drive.google.com/uc?export=download&id=' + fileId[1];
+                    
+                    // Open download link in new tab
+                    window.open(downloadUrl, '_blank');
+                    
+                    // Show success message
+                    alert('📊 Downloading ' + currentCategory + ' dataset...\n\n✅ Your download should start automatically.\n📁 File contains complete ' + currentCategory + ' leads data from India.');
+                } else {
+                    // Fallback to view link
+                    window.open(currentCategoryLink, '_blank');
+                    alert('📂 Opening ' + currentCategory + ' dataset...\n\nClick the download button in Google Drive to get the file.');
+                }
+            } else {
+                alert('❌ Download link not available for ' + currentCategory + '\n\nThis category data is still being processed.');
+            }
+            
+            closeExportModal();
         }
 
         function exportCurrentView() {
@@ -863,10 +1489,1028 @@
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-            // Try loading from Firestore first, fallback to sample data
-            setTimeout(() => {
-                loadDataFromFirestore(currentCategory);
-            }, 100); // Small delay to ensure Firebase is loaded
+            // Check if Firebase is configured, otherwise use sample data immediately
+            if (!window.db) {
+                console.log('Loading sample data (Firebase not configured)');
+                loadSampleData();
+                renderTable();
+                updateCountryStats();
+            } else {
+                // Try loading from Firestore
+                setTimeout(() => {
+                    loadDataFromFirestore(currentCategory);
+                }, 100);
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExportModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeExportModal();
+            }
+        });
+    </script>
+</body>
+</html> + sales.toLocaleString();
+            return '
+
+        function updateLoadingState(loading) {
+            var statusElement = document.getElementById('statusText');
+            if (loading) {
+                statusElement.innerHTML = '🔄 Loading data from Firestore...';
+                statusElement.className = 'text-sm text-blue-600';
+            } else {
+                statusElement.className = 'text-sm text-green-600';
+            }
+        }
+
+        // Fallback to sample data
+        function loadSampleData() {
+            allData = [];
+            for (var i = 0; i < businessData.length; i++) {
+                var row = businessData[i];
+                allData.push({
+                    id: i + 1,
+                    domain: row.domain,
+                    merchant: row.merchant,
+                    city: row.city,
+                    state: row.state,
+                    country: 'India',
+                    price: row.price,
+                    platform: row.platform,
+                    rank: row.rank,
+                    status: row.status,
+                    sales: row.sales,
+                    emails: row.emails,
+                    phones: row.phones,
+                    employees: Math.floor(Math.random() * 1000) + 1,
+                    companySize: getCompanySize(Math.floor(Math.random() * 1000) + 1),
+                    category: currentCategory
+                });
+            }
+            filteredData = allData.slice();
+            updateRecordCount();
+        }
+
+        function updateRecordCount() {
+            var total = allData.length;
+            var filtered = filteredData.length;
+            var startIndex = (currentPage - 1) * itemsPerPage;
+            var endIndex = Math.min(startIndex + itemsPerPage, filtered);
+            var showing = Math.min(itemsPerPage, filtered - startIndex);
+            
+            document.getElementById('recordCount').textContent = 
+                'Showing ' + (startIndex + 1) + '-' + endIndex + ' of ' + filtered + ' records';
+        }
+
+        function renderTable() {
+            var startIndex = (currentPage - 1) * itemsPerPage;
+            var endIndex = startIndex + itemsPerPage;
+            var pageData = filteredData.slice(startIndex, endIndex);
+
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            for (var i = 0; i < pageData.length; i++) {
+                var item = pageData[i];
+                var row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = 
+                    '<td class="px-4 py-3"><input type="checkbox" data-id="' + item.id + '" onchange="updateSelectedRows(this)"></td>' +
+                    '<td class="px-4 py-3 text-sm font-medium text-gray-900 col-domain"><a href="https://' + item.domain + '" target="_blank" class="text-blue-600 hover:text-blue-800">' + item.domain + ' 🔗</a></td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-merchant">' + item.merchant + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-city">' + item.city + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-state">' + item.state + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-price">' + item.price + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-platform">' + item.platform + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-rank">#' + item.rank + '</td>' +
+                    '<td class="px-4 py-3 text-sm col-status"><span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">' + item.status + '</span></td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-sales">' + item.sales + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-emails hidden">' + item.emails + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-phones hidden">' + item.phones + '</td>';
+                tbody.appendChild(row);
+            }
+
+            updatePagination();
+            updateRecordCount();
+        }
+
+        function updateSelectedRows(checkbox) {
+            var id = parseInt(checkbox.dataset.id);
+            if (checkbox.checked) {
+                selectedRows.add(id);
+            } else {
+                selectedRows.delete(id);
+            }
+        }
+
+        function selectAll(checkbox) {
+            var checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = checkbox.checked;
+                updateSelectedRows(checkboxes[i]);
+            }
+        }
+
+        function updatePagination() {
+            var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            document.getElementById('pageInfo').textContent = 'Page ' + currentPage + ' of ' + totalPages;
+            
+            var prevBtn = document.getElementById('prevBtn');
+            var nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            
+            if (prevBtn.disabled) {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            if (nextBtn.disabled) {
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function nextPage() {
+            var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+        function changeCategory() {
+            var select = document.getElementById('categorySelect');
+            currentCategory = select.value;
+            currentPage = 1;
+            
+            document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records...';
+            
+            // Update export modal descriptions
+            document.getElementById('driveDescription').textContent = 'Complete ' + currentCategory + ' dataset from Google Drive';
+            
+            // Check if download is available for this category
+            var hasDownload = categoryDownloadLinks[currentCategory];
+            var statusElement = document.getElementById('driveStatus');
+            if (hasDownload) {
+                statusElement.textContent = '✅ Direct download available';
+                statusElement.className = 'text-xs opacity-75 mt-1 text-green-200';
+            } else {
+                statusElement.textContent = '⏳ Data being processed';
+                statusElement.className = 'text-xs opacity-75 mt-1 text-yellow-200';
+            }
+            
+            // Load data from Firestore based on category
+            loadDataFromFirestore(currentCategory);
+        }
+
+        function filterData() {
+            applyAllFilters();
+        }
+
+        function filterByCountry() {
+            applyAllFilters();
+        }
+
+        function filterByPlatform() {
+            applyAllFilters();
+        }
+
+        function filterByStatus() {
+            applyAllFilters();
+        }
+
+        function filterByCompanySize() {
+            applyAllFilters();
+        }
+
+        // Sorting functions
+        function sortByColumn(column) {
+            if (currentSort.column === column) {
+                // Toggle direction if same column
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                // New column, start with ascending
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            // Update dropdown to reflect current sort
+            var sortValue = column + '_' + currentSort.direction;
+            document.getElementById('sortSelect').value = sortValue;
+            
+            applySorting();
+        }
+
+        function applySorting() {
+            var sortSelect = document.getElementById('sortSelect');
+            var sortValue = sortSelect.value;
+            
+            if (!sortValue) {
+                currentSort = { column: null, direction: null };
+                updateSortIcons();
+                applyAllFilters();
+                return;
+            }
+            
+            var [column, direction] = sortValue.split('_');
+            currentSort = { column: column, direction: direction };
+            
+            updateSortIcons();
+            
+            filteredData.sort(function(a, b) {
+                var aVal, bVal;
+                
+                switch (column) {
+                    case 'sales':
+                        // Extract numeric value from sales string (e.g., "$44250" -> 44250)
+                        aVal = parseFloat(a.sales.replace(/[$,]/g, '')) || 0;
+                        bVal = parseFloat(b.sales.replace(/[$,]/g, '')) || 0;
+                        break;
+                    case 'rank':
+                        aVal = parseInt(a.rank) || 0;
+                        bVal = parseInt(b.rank) || 0;
+                        break;
+                    case 'price':
+                        // Extract numeric value from price string (e.g., "₹1870" -> 1870)
+                        aVal = parseFloat(a.price.replace(/[₹,$]/g, '')) || 0;
+                        bVal = parseFloat(b.price.replace(/[₹,$]/g, '')) || 0;
+                        break;
+                    case 'merchant':
+                        aVal = a.merchant.toLowerCase();
+                        bVal = b.merchant.toLowerCase();
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (direction === 'asc') {
+                    if (typeof aVal === 'string') {
+                        return aVal.localeCompare(bVal);
+                    }
+                    return aVal - bVal;
+                } else {
+                    if (typeof aVal === 'string') {
+                        return bVal.localeCompare(aVal);
+                    }
+                    return bVal - aVal;
+                }
+            });
+            
+            currentPage = 1; // Reset to first page after sorting
+            renderTable();
+        }
+
+        function updateSortIcons() {
+            // Reset all icons
+            var rankIcon = document.getElementById('rank-sort-icon');
+            var salesIcon = document.getElementById('sales-sort-icon');
+            
+            if (rankIcon) rankIcon.textContent = '↕️';
+            if (salesIcon) salesIcon.textContent = '↕️';
+            
+            // Update active column icon
+            if (currentSort.column && currentSort.direction) {
+                var iconElement = document.getElementById(currentSort.column + '-sort-icon');
+                if (iconElement) {
+                    iconElement.textContent = currentSort.direction === 'asc' ? '↑' : '↓';
+                    iconElement.classList.remove('text-gray-400');
+                    iconElement.classList.add('text-blue-600');
+                }
+            }
+            
+            // Reset other icons to gray
+            [rankIcon, salesIcon].forEach(function(icon) {
+                if (icon && (!currentSort.column || !icon.id.includes(currentSort.column))) {
+                    icon.classList.remove('text-blue-600');
+                    icon.classList.add('text-gray-400');
+                }
+            });
+        }
+
+        function applyAllFilters() {
+            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var country = document.getElementById('countrySelect').value;
+            var platform = document.getElementById('platformSelect').value;
+            var status = document.getElementById('statusSelect').value;
+            var companySize = document.getElementById('companySizeSelect').value;
+
+            filteredData = allData.filter(function(item) {
+                var matchSearch = !searchTerm || 
+                    item.domain.toLowerCase().includes(searchTerm) ||
+                    item.merchant.toLowerCase().includes(searchTerm) ||
+                    item.city.toLowerCase().includes(searchTerm);
+                
+                var matchCountry = country === 'All' || item.country === country;
+                var matchPlatform = platform === 'All' || item.platform === platform;
+                var matchStatus = status === 'All' || item.status === status;
+                var matchCompanySize = companySize === 'All' || item.companySize === companySize;
+
+                return matchSearch && matchCountry && matchPlatform && matchStatus && matchCompanySize;
+            });
+
+            // Apply current sorting after filtering
+            if (currentSort.column && currentSort.direction) {
+                applySorting();
+            } else {
+                currentPage = 1;
+                renderTable();
+                updateCountryStats();
+            }
+        }
+
+        function updateCountryStats() {
+            var stats = {};
+            allData.forEach(function(item) {
+                stats[item.country] = (stats[item.country] || 0) + 1;
+            });
+
+            var statsHtml = '';
+            Object.keys(stats).forEach(function(country) {
+                statsHtml += '<div>' + country + ': ' + stats[country] + ' records</div>';
+            });
+            
+            document.getElementById('countryStats').innerHTML = statsHtml;
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('countrySelect').value = 'India';
+            document.getElementById('platformSelect').value = 'All';
+            document.getElementById('statusSelect').value = 'All';
+            document.getElementById('companySizeSelect').value = 'All';
+            document.getElementById('sortSelect').value = '';
+            
+            // Reset sorting
+            currentSort = { column: null, direction: null };
+            updateSortIcons();
+            
+            applyAllFilters();
+        }
+
+        function toggleColumns() {
+            var columnFilter = document.getElementById('columnFilter');
+            columnFilter.classList.toggle('hidden');
+        }
+
+        function toggleColumn(columnName) {
+            var elements = document.querySelectorAll('.col-' + columnName);
+            var checkbox = document.getElementById('col-' + columnName);
+            
+            elements.forEach(function(element) {
+                if (checkbox.checked) {
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
+                }
+            });
+        }
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function exportToDrive() {
+            var currentCategoryLink = categoryDownloadLinks[currentCategory];
+            
+            if (currentCategoryLink) {
+                // Convert Google Drive view link to download link
+                var fileId = currentCategoryLink.match(/\/d\/([a-zA-Z0-9-_]+)/);
+                if (fileId && fileId[1]) {
+                    var downloadUrl = 'https://drive.google.com/uc?export=download&id=' + fileId[1];
+                    
+                    // Open download link in new tab
+                    window.open(downloadUrl, '_blank');
+                    
+                    // Show success message
+                    alert('📊 Downloading ' + currentCategory + ' dataset...\n\n✅ Your download should start automatically.\n📁 File contains complete ' + currentCategory + ' leads data from India.');
+                } else {
+                    // Fallback to view link
+                    window.open(currentCategoryLink, '_blank');
+                    alert('📂 Opening ' + currentCategory + ' dataset...\n\nClick the download button in Google Drive to get the file.');
+                }
+            } else {
+                alert('❌ Download link not available for ' + currentCategory + '\n\nThis category data is still being processed.');
+            }
+            
+            closeExportModal();
+        }
+
+        function exportCurrentView() {
+            var csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Headers
+            var headers = [];
+            var visibleColumns = [
+                { key: 'domain', name: 'Domain', visible: !document.querySelector('.col-domain').classList.contains('hidden') },
+                { key: 'merchant', name: 'Merchant Name', visible: !document.querySelector('.col-merchant').classList.contains('hidden') },
+                { key: 'city', name: 'City', visible: !document.querySelector('.col-city').classList.contains('hidden') },
+                { key: 'state', name: 'State', visible: !document.querySelector('.col-state').classList.contains('hidden') },
+                { key: 'price', name: 'Avg Price', visible: !document.querySelector('.col-price').classList.contains('hidden') },
+                { key: 'platform', name: 'Platform', visible: !document.querySelector('.col-platform').classList.contains('hidden') },
+                { key: 'rank', name: 'Rank', visible: !document.querySelector('.col-rank').classList.contains('hidden') },
+                { key: 'status', name: 'Status', visible: !document.querySelector('.col-status').classList.contains('hidden') },
+                { key: 'sales', name: 'Est. Sales', visible: !document.querySelector('.col-sales').classList.contains('hidden') },
+                { key: 'emails', name: 'Emails', visible: !document.querySelector('.col-emails').classList.contains('hidden') },
+                { key: 'phones', name: 'Phones', visible: !document.querySelector('.col-phones').classList.contains('hidden') }
+            ];
+            
+            visibleColumns.forEach(function(col) {
+                if (col.visible) {
+                    headers.push(col.name);
+                }
+            });
+            
+            csvContent += headers.join(",") + "\r\n";
+            
+            // Data rows
+            filteredData.forEach(function(item) {
+                var row = [];
+                visibleColumns.forEach(function(col) {
+                    if (col.visible) {
+                        var value = item[col.key] || '';
+                        // Escape commas and quotes in CSV
+                        if (value.toString().includes(',') || value.toString().includes('"')) {
+                            value = '"' + value.toString().replace(/"/g, '""') + '"';
+                        }
+                        row.push(value);
+                    }
+                });
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            // Download the CSV
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "store_leads_" + currentCategory.replace(/\s+/g, '_').toLowerCase() + "_" + new Date().toISOString().split('T')[0] + ".csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            closeExportModal();
+        }
+
+        function testFirebaseURL() {
+            if (!window.db) {
+                alert('❌ Firebase not configured!\n\nPlease update your Firebase configuration in the script section.');
+                return;
+            }
+            
+            alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n📊 Collections available:\n- fashion_and_apparel\n- beauty_and_fitness\n- home_and_garden');
+        }
+
+        function loadSampleDataButton() {
+            if (isLoadingFromFirestore) {
+                alert('⏳ Already loading data from Firestore...');
+                return;
+            }
+            
+            alert('🔄 Refreshing data from Firestore...\n\nReloading ' + currentCategory + ' records from your Cloud Firestore database.');
+            loadDataFromFirestore(currentCategory);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Firebase is configured, otherwise use sample data immediately
+            if (!window.db) {
+                console.log('Loading sample data (Firebase not configured)');
+                loadSampleData();
+                renderTable();
+                updateCountryStats();
+            } else {
+                // Try loading from Firestore
+                setTimeout(() => {
+                    loadDataFromFirestore(currentCategory);
+                }, 100);
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExportModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeExportModal();
+            }
+        });
+    </script>
+</body>
+</html> + String(sales).replace(/[^\d]/g, '');
+        }
+
+        function updateLoadingState(loading) {
+            var statusElement = document.getElementById('statusText');
+            if (loading) {
+                statusElement.innerHTML = '🔄 Loading data from Firestore...';
+                statusElement.className = 'text-sm text-blue-600';
+            } else {
+                statusElement.className = 'text-sm text-green-600';
+            }
+        }
+
+        // Fallback to sample data
+        function loadSampleData() {
+            allData = [];
+            for (var i = 0; i < businessData.length; i++) {
+                var row = businessData[i];
+                allData.push({
+                    id: i + 1,
+                    domain: row.domain,
+                    merchant: row.merchant,
+                    city: row.city,
+                    state: row.state,
+                    country: 'India',
+                    price: row.price,
+                    platform: row.platform,
+                    rank: row.rank,
+                    status: row.status,
+                    sales: row.sales,
+                    emails: row.emails,
+                    phones: row.phones,
+                    employees: Math.floor(Math.random() * 1000) + 1,
+                    companySize: getCompanySize(Math.floor(Math.random() * 1000) + 1),
+                    category: currentCategory
+                });
+            }
+            filteredData = allData.slice();
+            updateRecordCount();
+        }
+
+        function updateRecordCount() {
+            var total = allData.length;
+            var filtered = filteredData.length;
+            var startIndex = (currentPage - 1) * itemsPerPage;
+            var endIndex = Math.min(startIndex + itemsPerPage, filtered);
+            var showing = Math.min(itemsPerPage, filtered - startIndex);
+            
+            document.getElementById('recordCount').textContent = 
+                'Showing ' + (startIndex + 1) + '-' + endIndex + ' of ' + filtered + ' records';
+        }
+
+        function renderTable() {
+            var startIndex = (currentPage - 1) * itemsPerPage;
+            var endIndex = startIndex + itemsPerPage;
+            var pageData = filteredData.slice(startIndex, endIndex);
+
+            var tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            for (var i = 0; i < pageData.length; i++) {
+                var item = pageData[i];
+                var row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = 
+                    '<td class="px-4 py-3"><input type="checkbox" data-id="' + item.id + '" onchange="updateSelectedRows(this)"></td>' +
+                    '<td class="px-4 py-3 text-sm font-medium text-gray-900 col-domain"><a href="https://' + item.domain + '" target="_blank" class="text-blue-600 hover:text-blue-800">' + item.domain + ' 🔗</a></td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-merchant">' + item.merchant + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-city">' + item.city + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-state">' + item.state + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-price">' + item.price + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-platform">' + item.platform + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-rank">#' + item.rank + '</td>' +
+                    '<td class="px-4 py-3 text-sm col-status"><span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">' + item.status + '</span></td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-sales">' + item.sales + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-emails hidden">' + item.emails + '</td>' +
+                    '<td class="px-4 py-3 text-sm text-gray-500 col-phones hidden">' + item.phones + '</td>';
+                tbody.appendChild(row);
+            }
+
+            updatePagination();
+            updateRecordCount();
+        }
+
+        function updateSelectedRows(checkbox) {
+            var id = parseInt(checkbox.dataset.id);
+            if (checkbox.checked) {
+                selectedRows.add(id);
+            } else {
+                selectedRows.delete(id);
+            }
+        }
+
+        function selectAll(checkbox) {
+            var checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = checkbox.checked;
+                updateSelectedRows(checkboxes[i]);
+            }
+        }
+
+        function updatePagination() {
+            var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            document.getElementById('pageInfo').textContent = 'Page ' + currentPage + ' of ' + totalPages;
+            
+            var prevBtn = document.getElementById('prevBtn');
+            var nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            
+            if (prevBtn.disabled) {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            if (nextBtn.disabled) {
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function nextPage() {
+            var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+        function changeCategory() {
+            var select = document.getElementById('categorySelect');
+            currentCategory = select.value;
+            currentPage = 1;
+            
+            document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records...';
+            
+            // Update export modal descriptions
+            document.getElementById('driveDescription').textContent = 'Complete ' + currentCategory + ' dataset from Google Drive';
+            
+            // Check if download is available for this category
+            var hasDownload = categoryDownloadLinks[currentCategory];
+            var statusElement = document.getElementById('driveStatus');
+            if (hasDownload) {
+                statusElement.textContent = '✅ Direct download available';
+                statusElement.className = 'text-xs opacity-75 mt-1 text-green-200';
+            } else {
+                statusElement.textContent = '⏳ Data being processed';
+                statusElement.className = 'text-xs opacity-75 mt-1 text-yellow-200';
+            }
+            
+            // Load data from Firestore based on category
+            loadDataFromFirestore(currentCategory);
+        }
+
+        function filterData() {
+            applyAllFilters();
+        }
+
+        function filterByCountry() {
+            applyAllFilters();
+        }
+
+        function filterByPlatform() {
+            applyAllFilters();
+        }
+
+        function filterByStatus() {
+            applyAllFilters();
+        }
+
+        function filterByCompanySize() {
+            applyAllFilters();
+        }
+
+        // Sorting functions
+        function sortByColumn(column) {
+            if (currentSort.column === column) {
+                // Toggle direction if same column
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                // New column, start with ascending
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            // Update dropdown to reflect current sort
+            var sortValue = column + '_' + currentSort.direction;
+            document.getElementById('sortSelect').value = sortValue;
+            
+            applySorting();
+        }
+
+        function applySorting() {
+            var sortSelect = document.getElementById('sortSelect');
+            var sortValue = sortSelect.value;
+            
+            if (!sortValue) {
+                currentSort = { column: null, direction: null };
+                updateSortIcons();
+                applyAllFilters();
+                return;
+            }
+            
+            var [column, direction] = sortValue.split('_');
+            currentSort = { column: column, direction: direction };
+            
+            updateSortIcons();
+            
+            filteredData.sort(function(a, b) {
+                var aVal, bVal;
+                
+                switch (column) {
+                    case 'sales':
+                        // Extract numeric value from sales string (e.g., "$44250" -> 44250)
+                        aVal = parseFloat(a.sales.replace(/[$,]/g, '')) || 0;
+                        bVal = parseFloat(b.sales.replace(/[$,]/g, '')) || 0;
+                        break;
+                    case 'rank':
+                        aVal = parseInt(a.rank) || 0;
+                        bVal = parseInt(b.rank) || 0;
+                        break;
+                    case 'price':
+                        // Extract numeric value from price string (e.g., "₹1870" -> 1870)
+                        aVal = parseFloat(a.price.replace(/[₹,$]/g, '')) || 0;
+                        bVal = parseFloat(b.price.replace(/[₹,$]/g, '')) || 0;
+                        break;
+                    case 'merchant':
+                        aVal = a.merchant.toLowerCase();
+                        bVal = b.merchant.toLowerCase();
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (direction === 'asc') {
+                    if (typeof aVal === 'string') {
+                        return aVal.localeCompare(bVal);
+                    }
+                    return aVal - bVal;
+                } else {
+                    if (typeof aVal === 'string') {
+                        return bVal.localeCompare(aVal);
+                    }
+                    return bVal - aVal;
+                }
+            });
+            
+            currentPage = 1; // Reset to first page after sorting
+            renderTable();
+        }
+
+        function updateSortIcons() {
+            // Reset all icons
+            var rankIcon = document.getElementById('rank-sort-icon');
+            var salesIcon = document.getElementById('sales-sort-icon');
+            
+            if (rankIcon) rankIcon.textContent = '↕️';
+            if (salesIcon) salesIcon.textContent = '↕️';
+            
+            // Update active column icon
+            if (currentSort.column && currentSort.direction) {
+                var iconElement = document.getElementById(currentSort.column + '-sort-icon');
+                if (iconElement) {
+                    iconElement.textContent = currentSort.direction === 'asc' ? '↑' : '↓';
+                    iconElement.classList.remove('text-gray-400');
+                    iconElement.classList.add('text-blue-600');
+                }
+            }
+            
+            // Reset other icons to gray
+            [rankIcon, salesIcon].forEach(function(icon) {
+                if (icon && (!currentSort.column || !icon.id.includes(currentSort.column))) {
+                    icon.classList.remove('text-blue-600');
+                    icon.classList.add('text-gray-400');
+                }
+            });
+        }
+
+        function applyAllFilters() {
+            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var country = document.getElementById('countrySelect').value;
+            var platform = document.getElementById('platformSelect').value;
+            var status = document.getElementById('statusSelect').value;
+            var companySize = document.getElementById('companySizeSelect').value;
+
+            filteredData = allData.filter(function(item) {
+                var matchSearch = !searchTerm || 
+                    item.domain.toLowerCase().includes(searchTerm) ||
+                    item.merchant.toLowerCase().includes(searchTerm) ||
+                    item.city.toLowerCase().includes(searchTerm);
+                
+                var matchCountry = country === 'All' || item.country === country;
+                var matchPlatform = platform === 'All' || item.platform === platform;
+                var matchStatus = status === 'All' || item.status === status;
+                var matchCompanySize = companySize === 'All' || item.companySize === companySize;
+
+                return matchSearch && matchCountry && matchPlatform && matchStatus && matchCompanySize;
+            });
+
+            // Apply current sorting after filtering
+            if (currentSort.column && currentSort.direction) {
+                applySorting();
+            } else {
+                currentPage = 1;
+                renderTable();
+                updateCountryStats();
+            }
+        }
+
+        function updateCountryStats() {
+            var stats = {};
+            allData.forEach(function(item) {
+                stats[item.country] = (stats[item.country] || 0) + 1;
+            });
+
+            var statsHtml = '';
+            Object.keys(stats).forEach(function(country) {
+                statsHtml += '<div>' + country + ': ' + stats[country] + ' records</div>';
+            });
+            
+            document.getElementById('countryStats').innerHTML = statsHtml;
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('countrySelect').value = 'India';
+            document.getElementById('platformSelect').value = 'All';
+            document.getElementById('statusSelect').value = 'All';
+            document.getElementById('companySizeSelect').value = 'All';
+            document.getElementById('sortSelect').value = '';
+            
+            // Reset sorting
+            currentSort = { column: null, direction: null };
+            updateSortIcons();
+            
+            applyAllFilters();
+        }
+
+        function toggleColumns() {
+            var columnFilter = document.getElementById('columnFilter');
+            columnFilter.classList.toggle('hidden');
+        }
+
+        function toggleColumn(columnName) {
+            var elements = document.querySelectorAll('.col-' + columnName);
+            var checkbox = document.getElementById('col-' + columnName);
+            
+            elements.forEach(function(element) {
+                if (checkbox.checked) {
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
+                }
+            });
+        }
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function exportToDrive() {
+            var currentCategoryLink = categoryDownloadLinks[currentCategory];
+            
+            if (currentCategoryLink) {
+                // Convert Google Drive view link to download link
+                var fileId = currentCategoryLink.match(/\/d\/([a-zA-Z0-9-_]+)/);
+                if (fileId && fileId[1]) {
+                    var downloadUrl = 'https://drive.google.com/uc?export=download&id=' + fileId[1];
+                    
+                    // Open download link in new tab
+                    window.open(downloadUrl, '_blank');
+                    
+                    // Show success message
+                    alert('📊 Downloading ' + currentCategory + ' dataset...\n\n✅ Your download should start automatically.\n📁 File contains complete ' + currentCategory + ' leads data from India.');
+                } else {
+                    // Fallback to view link
+                    window.open(currentCategoryLink, '_blank');
+                    alert('📂 Opening ' + currentCategory + ' dataset...\n\nClick the download button in Google Drive to get the file.');
+                }
+            } else {
+                alert('❌ Download link not available for ' + currentCategory + '\n\nThis category data is still being processed.');
+            }
+            
+            closeExportModal();
+        }
+
+        function exportCurrentView() {
+            var csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Headers
+            var headers = [];
+            var visibleColumns = [
+                { key: 'domain', name: 'Domain', visible: !document.querySelector('.col-domain').classList.contains('hidden') },
+                { key: 'merchant', name: 'Merchant Name', visible: !document.querySelector('.col-merchant').classList.contains('hidden') },
+                { key: 'city', name: 'City', visible: !document.querySelector('.col-city').classList.contains('hidden') },
+                { key: 'state', name: 'State', visible: !document.querySelector('.col-state').classList.contains('hidden') },
+                { key: 'price', name: 'Avg Price', visible: !document.querySelector('.col-price').classList.contains('hidden') },
+                { key: 'platform', name: 'Platform', visible: !document.querySelector('.col-platform').classList.contains('hidden') },
+                { key: 'rank', name: 'Rank', visible: !document.querySelector('.col-rank').classList.contains('hidden') },
+                { key: 'status', name: 'Status', visible: !document.querySelector('.col-status').classList.contains('hidden') },
+                { key: 'sales', name: 'Est. Sales', visible: !document.querySelector('.col-sales').classList.contains('hidden') },
+                { key: 'emails', name: 'Emails', visible: !document.querySelector('.col-emails').classList.contains('hidden') },
+                { key: 'phones', name: 'Phones', visible: !document.querySelector('.col-phones').classList.contains('hidden') }
+            ];
+            
+            visibleColumns.forEach(function(col) {
+                if (col.visible) {
+                    headers.push(col.name);
+                }
+            });
+            
+            csvContent += headers.join(",") + "\r\n";
+            
+            // Data rows
+            filteredData.forEach(function(item) {
+                var row = [];
+                visibleColumns.forEach(function(col) {
+                    if (col.visible) {
+                        var value = item[col.key] || '';
+                        // Escape commas and quotes in CSV
+                        if (value.toString().includes(',') || value.toString().includes('"')) {
+                            value = '"' + value.toString().replace(/"/g, '""') + '"';
+                        }
+                        row.push(value);
+                    }
+                });
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            // Download the CSV
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "store_leads_" + currentCategory.replace(/\s+/g, '_').toLowerCase() + "_" + new Date().toISOString().split('T')[0] + ".csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            closeExportModal();
+        }
+
+        function testFirebaseURL() {
+            if (!window.db) {
+                alert('❌ Firebase not configured!\n\nPlease update your Firebase configuration in the script section.');
+                return;
+            }
+            
+            alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n📊 Collections available:\n- fashion_and_apparel\n- beauty_and_fitness\n- home_and_garden');
+        }
+
+        function loadSampleDataButton() {
+            if (isLoadingFromFirestore) {
+                alert('⏳ Already loading data from Firestore...');
+                return;
+            }
+            
+            alert('🔄 Refreshing data from Firestore...\n\nReloading ' + currentCategory + ' records from your Cloud Firestore database.');
+            loadDataFromFirestore(currentCategory);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Firebase is configured, otherwise use sample data immediately
+            if (!window.db) {
+                console.log('Loading sample data (Firebase not configured)');
+                loadSampleData();
+                renderTable();
+                updateCountryStats();
+            } else {
+                // Try loading from Firestore
+                setTimeout(() => {
+                    loadDataFromFirestore(currentCategory);
+                }, 100);
+            }
         });
 
         // Close modal when clicking outside
