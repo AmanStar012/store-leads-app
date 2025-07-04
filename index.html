@@ -12,14 +12,14 @@
         
         // Your Firebase configuration - UPDATE THESE VALUES
         const firebaseConfig = {
-        apiKey: "AIzaSyBcYqMIIiQTT3KgRI6nL9LnlaFlNHheRNc",
-        authDomain: "store-leads-app.firebaseapp.com",
-        databaseURL: "https://store-leads-app-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "store-leads-app",
-        storageBucket: "store-leads-app.firebasestorage.app",
-        messagingSenderId: "1003611905047",
-        appId: "1:1003611905047:web:030463a0ac285c819e1052",
-        measurementId: "G-45LGWSX3N8"
+     apiKey: "AIzaSyBcYqMIIiQTT3KgRI6nL9LnlaFlNHheRNc",
+  authDomain: "store-leads-app.firebaseapp.com",
+  databaseURL: "https://store-leads-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "store-leads-app",
+  storageBucket: "store-leads-app.firebasestorage.app",
+  messagingSenderId: "1003611905047",
+  appId: "1:1003611905047:web:030463a0ac285c819e1052",
+  measurementId: "G-45LGWSX3N8"
         };
 
         // Initialize Firebase
@@ -217,8 +217,8 @@
                             <h1 class="text-xl font-semibold">Store Leads</h1>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button onclick="testFirebaseURL()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition-colors">Test Firestore</button>
-                            <button onclick="loadSampleDataButton()" class="bg-green-500 hover:bg-green-600 px-3 py-1 rounded text-sm transition-colors">Refresh Data</button>
+                            <button onclick="testFirestore()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition-colors">Test Firestore</button>
+                            <button onclick="refreshData()" class="bg-green-500 hover:bg-green-600 px-3 py-1 rounded text-sm transition-colors">Refresh Data</button>
                             <button onclick="openExportModal()" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded transition-colors">
                                 ⬇️ EXPORT
                             </button>
@@ -522,6 +522,34 @@
 
         // Fallback to sample data
         function loadSampleData() {
+            console.log('Loading sample data for category:', currentCategory);
+            
+            allData = [];
+            for (var i = 0; i < businessData.length; i++) {
+                var row = businessData[i];
+                allData.push({
+                    id: i + 1,
+                    domain: row.domain,
+                    merchant: row.merchant,
+                    city: row.city,
+                    state: row.state,
+                    country: 'India',
+                    price: row.price,
+                    platform: row.platform,
+                    rank: row.rank,
+                    status: row.status,
+                    sales: row.sales,
+                    emails: row.emails,
+                    phones: row.phones,
+                    employees: Math.floor(Math.random() * 1000) + 1,
+                    companySize: getCompanySize(Math.floor(Math.random() * 1000) + 1),
+                    category: currentCategory
+                });
+            }
+            filteredData = allData.slice();
+            console.log('Sample data loaded:', allData.length, 'records');
+            updateRecordCount();
+        }
             allData = [];
             for (var i = 0; i < businessData.length; i++) {
                 var row = businessData[i];
@@ -667,8 +695,15 @@
                 statusElement.className = 'text-xs opacity-75 mt-1 text-yellow-200';
             }
             
-            // Load data from Firestore based on category
-            loadDataFromFirestore(currentCategory);
+            // Load data - try Firestore first, fallback to sample data
+            if (window.db) {
+                loadDataFromFirestore(currentCategory);
+            } else {
+                loadSampleData();
+                renderTable();
+                document.getElementById('statusText').textContent = 
+                    '📊 Showing sample ' + currentCategory + ' data (Firebase not configured)';
+            }
         }
 
         function filterData() {
@@ -962,40 +997,70 @@
             closeExportModal();
         }
 
-        function testFirebaseURL() {
+        function testFirestore() {
             if (!window.db) {
-                alert('❌ Firebase not configured!\n\nPlease update your Firebase configuration in the script section.');
+                alert('❌ Firebase not configured!\n\nPlease update your Firebase configuration in the script section.\n\n1. Get config from Firebase Console\n2. Replace the empty firebaseConfig values\n3. Refresh the page');
                 return;
             }
             
-            var availableCollections = Object.values(categoryToCollection).join('\n- ');
-            alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n\n📊 Available Collections:\n- ' + availableCollections + '\n\n🎯 Current Category: ' + currentCategory + '\n🗂️ Collection: ' + categoryToCollection[currentCategory]);
+            var availableCollections = Object.values(categoryToCollection).join('\n• ');
+            var message = '🔥 Firestore Connection Test\n\n';
+            message += '✅ Firebase initialized successfully!\n';
+            message += '🌐 Project connected!\n\n';
+            message += '📊 Available Collections (' + Object.keys(categoryToCollection).length + '):\n';
+            message += '• ' + availableCollections + '\n\n';
+            message += '🎯 Current Category: ' + currentCategory + '\n';
+            message += '🗂️ Current Collection: ' + categoryToCollection[currentCategory] + '\n\n';
+            message += '💡 Try switching categories to load different datasets!';
+            
+            alert(message);
         }
 
-        function loadSampleDataButton() {
+        function refreshData() {
             if (isLoadingFromFirestore) {
-                alert('⏳ Already loading data from Firestore...');
+                alert('⏳ Already loading data from Firestore...\n\nPlease wait for the current operation to complete.');
                 return;
             }
             
-            alert('🔄 Refreshing data from Firestore...\n\nReloading ' + currentCategory + ' records from your Cloud Firestore database.');
+            if (!window.db) {
+                alert('🔄 Refreshing sample data...\n\nFirebase not configured - showing sample data for ' + currentCategory);
+                loadSampleData();
+                renderTable();
+                updateCountryStats();
+                return;
+            }
+            
+            var collectionName = categoryToCollection[currentCategory];
+            alert('🔄 Refreshing ' + currentCategory + ' data...\n\n📊 Loading from Firestore collection: ' + collectionName + '\n\n⏳ Please wait while we fetch the latest data...');
+            
+            // Reset current sort when refreshing
+            currentSort = { column: null, direction: null };
+            document.getElementById('sortSelect').value = '';
+            updateSortIcons();
+            
             loadDataFromFirestore(currentCategory);
         }
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if Firebase is configured, otherwise use sample data immediately
-            if (!window.db) {
-                console.log('Loading sample data (Firebase not configured)');
-                loadSampleData();
-                renderTable();
-                updateCountryStats();
-            } else {
-                // Try loading from Firestore
-                setTimeout(() => {
+            console.log('Dashboard initializing...');
+            
+            // Always load sample data first for immediate display
+            loadSampleData();
+            renderTable();
+            updateCountryStats();
+            
+            // Then try to load from Firestore if configured
+            setTimeout(() => {
+                if (window.db) {
+                    console.log('Firebase detected, attempting to load from Firestore...');
                     loadDataFromFirestore(currentCategory);
-                }, 100);
-            }
+                } else {
+                    console.log('Firebase not configured, using sample data');
+                    document.getElementById('statusText').textContent = 
+                        '📊 Showing sample ' + currentCategory + ' data (Firebase not configured)';
+                }
+            }, 500);
         });
 
         // Close modal when clicking outside
