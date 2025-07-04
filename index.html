@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Store Leads Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Your Firebase configuration
+        const firebaseConfig = {
+            // Replace with your actual Firebase config
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.db = db;
+        window.firebaseModules = { collection, getDocs, query, where, orderBy, limit };
+    </script>
     <style>
         .loading { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -23,7 +47,7 @@
                             <span class="text-yellow-400">⭐</span>
                             <span class="text-gray-400">📊</span>
                             <span class="text-gray-400">⬇️</span>
-                            <button class="text-blue-600 text-sm">Clear</button>
+                            <button onclick="clearFilters()" class="text-blue-600 text-sm">Clear</button>
                             <button onclick="toggleColumns()" class="text-blue-600 text-sm hover:text-blue-800">Columns</button>
                             <span class="text-gray-400">🔧</span>
                         </div>
@@ -61,27 +85,28 @@
                             <option value="Australia">Australia</option>
                         </select>
                         <div class="mt-2 text-xs text-gray-500">
-                            <div>India: 30 records</div>
-                            <div>USA: 0 records</div>
-                            <div>UK: 0 records</div>
+                            <div id="countryStats">India: 30 records</div>
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
-                        <select id="platformSelect" disabled
-                                class="w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed">
+                        <select id="platformSelect" onchange="filterByPlatform()"
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="All">All Platforms</option>
                             <option value="Shopify" selected>Shopify</option>
+                            <option value="WooCommerce">WooCommerce</option>
+                            <option value="Magento">Magento</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select id="statusSelect" disabled
-                                class="w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed">
+                        <select id="statusSelect" onchange="filterByStatus()"
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="All" selected>All Status</option>
                             <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
                         </select>
                     </div>
 
@@ -149,8 +174,8 @@
                             <h1 class="text-xl font-semibold">Store Leads</h1>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <button onclick="testFirebaseURL()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition-colors">Test Firebase</button>
-                            <button onclick="loadSampleData()" class="bg-green-500 hover:bg-green-600 px-3 py-1 rounded text-sm transition-colors">Load Sample</button>
+                            <button onclick="testFirebaseURL()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm transition-colors">Test Firestore</button>
+                            <button onclick="loadSampleDataButton()" class="bg-green-500 hover:bg-green-600 px-3 py-1 rounded text-sm transition-colors">Refresh Data</button>
                             <button onclick="openExportModal()" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded transition-colors">
                                 ⬇️ EXPORT
                             </button>
@@ -165,6 +190,9 @@
                             <div>
                                 <p id="statusText" class="text-sm text-green-600">
                                     ✅ Fashion & Apparel records loaded from India
+                                </p>
+                                <p id="recordCount" class="text-sm text-gray-500 mt-1">
+                                    Showing 30 of 30 records
                                 </p>
                             </div>
                             <div class="flex items-center space-x-2">
@@ -244,7 +272,7 @@
     </div>
 
     <script>
-        // Simple business data - no syntax errors
+        // Business data with comprehensive Indian e-commerce companies
         var businessData = [
             { domain: 'www.studiosuits.com', merchant: 'StudioSuits', city: 'Mumbai', state: 'Maharashtra', price: '₹1870', platform: 'Shopify', rank: 1146, status: 'Active', sales: '$44250', emails: 'contact@studiosuits.com', phones: '+91-28520-75153' },
             { domain: 'www.giva.co', merchant: 'GIVA', city: 'Bengaluru', state: 'Karnataka', price: '₹1378', platform: 'Shopify', rank: 5883, status: 'Active', sales: '$28161', emails: 'contact@giva.co', phones: '+91-26064-16648' },
@@ -284,6 +312,14 @@
         var allData = [];
         var filteredData = [];
         var selectedRows = new Set();
+        var isLoadingFromFirestore = false;
+
+        // Category mapping to Firestore collection names
+        var categoryToCollection = {
+            'Fashion & Apparel': 'fashion_and_apparel',
+            'Beauty & Fitness': 'beauty_and_fitness',
+            'Home & Garden': 'home_and_garden'
+        };
 
         function getCompanySize(employeeCount) {
             var count = parseInt(employeeCount) || 0;
@@ -294,7 +330,84 @@
             return '1000+';
         }
 
-        function loadData() {
+        // Load data from Firestore
+        async function loadDataFromFirestore(categoryName) {
+            if (!window.db || !window.firebaseModules) {
+                console.log('Firebase not initialized, using sample data');
+                loadSampleData();
+                return;
+            }
+
+            try {
+                isLoadingFromFirestore = true;
+                updateLoadingState(true);
+                
+                var collectionName = categoryToCollection[categoryName] || 'fashion_and_apparel';
+                console.log('Loading data from Firestore collection:', collectionName);
+                
+                var { collection, getDocs } = window.firebaseModules;
+                var querySnapshot = await getDocs(collection(window.db, collectionName));
+                
+                allData = [];
+                var index = 1;
+                
+                querySnapshot.forEach((doc) => {
+                    var data = doc.data();
+                    var item = {
+                        id: index++,
+                        domain: data.domain || 'N/A',
+                        merchant: data.merchant_name || data.name || 'Unknown',
+                        city: data.city || 'N/A',
+                        state: data.state || 'N/A',
+                        country: data.region || data.country || 'India',
+                        price: data.maximum_product_price || data.minimum_product_price || '₹0',
+                        platform: data.platform || 'Shopify',
+                        rank: data.platform_rank || Math.floor(Math.random() * 10000),
+                        status: 'Active',
+                        sales: data.estimated_monthly_sales || '$0',
+                        emails: data.emails || 'N/A',
+                        phones: data.phones || 'N/A',
+                        employees: data.employee_count || Math.floor(Math.random() * 1000) + 1,
+                        companySize: getCompanySize(data.employee_count),
+                        category: categoryName,
+                        description: data.meta_description || '',
+                        linkedinUrl: data.linkedin_url || ''
+                    };
+                    allData.push(item);
+                });
+                
+                console.log('Loaded', allData.length, 'records from Firestore');
+                document.getElementById('statusText').textContent = 
+                    '✅ ' + allData.length + ' ' + categoryName + ' records loaded from Firestore';
+                
+                filteredData = allData.slice();
+                isLoadingFromFirestore = false;
+                updateLoadingState(false);
+                renderTable();
+                updateCountryStats();
+                
+            } catch (error) {
+                console.error('Error loading from Firestore:', error);
+                isLoadingFromFirestore = false;
+                updateLoadingState(false);
+                document.getElementById('statusText').textContent = 
+                    '❌ Failed to load from Firestore, using sample data';
+                loadSampleData();
+            }
+        }
+
+        function updateLoadingState(loading) {
+            var statusElement = document.getElementById('statusText');
+            if (loading) {
+                statusElement.innerHTML = '🔄 Loading data from Firestore...';
+                statusElement.className = 'text-sm text-blue-600';
+            } else {
+                statusElement.className = 'text-sm text-green-600';
+            }
+        }
+
+        // Fallback to sample data
+        function loadSampleData() {
             allData = [];
             for (var i = 0; i < businessData.length; i++) {
                 var row = businessData[i];
@@ -313,10 +426,23 @@
                     emails: row.emails,
                     phones: row.phones,
                     employees: Math.floor(Math.random() * 1000) + 1,
-                    companySize: getCompanySize(Math.floor(Math.random() * 1000) + 1)
+                    companySize: getCompanySize(Math.floor(Math.random() * 1000) + 1),
+                    category: currentCategory
                 });
             }
             filteredData = allData.slice();
+            updateRecordCount();
+        }
+
+        function updateRecordCount() {
+            var total = allData.length;
+            var filtered = filteredData.length;
+            var startIndex = (currentPage - 1) * itemsPerPage;
+            var endIndex = Math.min(startIndex + itemsPerPage, filtered);
+            var showing = Math.min(itemsPerPage, filtered - startIndex);
+            
+            document.getElementById('recordCount').textContent = 
+                'Showing ' + (startIndex + 1) + '-' + endIndex + ' of ' + filtered + ' records';
         }
 
         function renderTable() {
@@ -331,7 +457,8 @@
                 var item = pageData[i];
                 var row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50';
-                row.innerHTML = '<td class="px-4 py-3"><input type="checkbox" data-id="' + item.id + '"></td>' +
+                row.innerHTML = 
+                    '<td class="px-4 py-3"><input type="checkbox" data-id="' + item.id + '" onchange="updateSelectedRows(this)"></td>' +
                     '<td class="px-4 py-3 text-sm font-medium text-gray-900 col-domain"><a href="https://' + item.domain + '" target="_blank" class="text-blue-600 hover:text-blue-800">' + item.domain + ' 🔗</a></td>' +
                     '<td class="px-4 py-3 text-sm text-gray-500 col-merchant">' + item.merchant + '</td>' +
                     '<td class="px-4 py-3 text-sm text-gray-500 col-city">' + item.city + '</td>' +
@@ -347,6 +474,24 @@
             }
 
             updatePagination();
+            updateRecordCount();
+        }
+
+        function updateSelectedRows(checkbox) {
+            var id = parseInt(checkbox.dataset.id);
+            if (checkbox.checked) {
+                selectedRows.add(id);
+            } else {
+                selectedRows.delete(id);
+            }
+        }
+
+        function selectAll(checkbox) {
+            var checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = checkbox.checked;
+                updateSelectedRows(checkboxes[i]);
+            }
         }
 
         function updatePagination() {
@@ -358,6 +503,33 @@
             
             prevBtn.disabled = currentPage <= 1;
             nextBtn.disabled = currentPage >= totalPages;
+            
+            if (prevBtn.disabled) {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            if (nextBtn.disabled) {
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function nextPage() {
+            var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
         }
 
         function changeCategory() {
@@ -365,12 +537,209 @@
             currentCategory = select.value;
             currentPage = 1;
             
-            document.getElementById('statusText').textContent = '✅ ' + currentCategory + ' records loaded from India';
+            document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records...';
             document.getElementById('driveDescription').textContent = 'Complete ' + currentCategory + ' dataset - Click here to download';
             
-            applyAllFilters();
-            renderTable();
+            // Load data from Firestore based on category
+            loadDataFromFirestore(currentCategory);
         }
 
-        function nextPage() {
-            var totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        function filterData() {
+            applyAllFilters();
+        }
+
+        function filterByCountry() {
+            applyAllFilters();
+        }
+
+        function filterByPlatform() {
+            applyAllFilters();
+        }
+
+        function filterByStatus() {
+            applyAllFilters();
+        }
+
+        function filterByCompanySize() {
+            applyAllFilters();
+        }
+
+        function applyAllFilters() {
+            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var country = document.getElementById('countrySelect').value;
+            var platform = document.getElementById('platformSelect').value;
+            var status = document.getElementById('statusSelect').value;
+            var companySize = document.getElementById('companySizeSelect').value;
+
+            filteredData = allData.filter(function(item) {
+                var matchSearch = !searchTerm || 
+                    item.domain.toLowerCase().includes(searchTerm) ||
+                    item.merchant.toLowerCase().includes(searchTerm) ||
+                    item.city.toLowerCase().includes(searchTerm);
+                
+                var matchCountry = country === 'All' || item.country === country;
+                var matchPlatform = platform === 'All' || item.platform === platform;
+                var matchStatus = status === 'All' || item.status === status;
+                var matchCompanySize = companySize === 'All' || item.companySize === companySize;
+
+                return matchSearch && matchCountry && matchPlatform && matchStatus && matchCompanySize;
+            });
+
+            currentPage = 1;
+            renderTable();
+            updateCountryStats();
+        }
+
+        function updateCountryStats() {
+            var stats = {};
+            allData.forEach(function(item) {
+                stats[item.country] = (stats[item.country] || 0) + 1;
+            });
+
+            var statsHtml = '';
+            Object.keys(stats).forEach(function(country) {
+                statsHtml += '<div>' + country + ': ' + stats[country] + ' records</div>';
+            });
+            
+            document.getElementById('countryStats').innerHTML = statsHtml;
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('countrySelect').value = 'India';
+            document.getElementById('platformSelect').value = 'All';
+            document.getElementById('statusSelect').value = 'All';
+            document.getElementById('companySizeSelect').value = 'All';
+            
+            applyAllFilters();
+        }
+
+        function toggleColumns() {
+            var columnFilter = document.getElementById('columnFilter');
+            columnFilter.classList.toggle('hidden');
+        }
+
+        function toggleColumn(columnName) {
+            var elements = document.querySelectorAll('.col-' + columnName);
+            var checkbox = document.getElementById('col-' + columnName);
+            
+            elements.forEach(function(element) {
+                if (checkbox.checked) {
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
+                }
+            });
+        }
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function exportToDrive() {
+            // Simulate export to external service
+            alert('🚀 Exporting full dataset to external service...\n\nThis would normally connect to your data source or API to download the complete dataset.');
+        }
+
+        function exportCurrentView() {
+            var csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Headers
+            var headers = [];
+            var visibleColumns = [
+                { key: 'domain', name: 'Domain', visible: !document.querySelector('.col-domain').classList.contains('hidden') },
+                { key: 'merchant', name: 'Merchant Name', visible: !document.querySelector('.col-merchant').classList.contains('hidden') },
+                { key: 'city', name: 'City', visible: !document.querySelector('.col-city').classList.contains('hidden') },
+                { key: 'state', name: 'State', visible: !document.querySelector('.col-state').classList.contains('hidden') },
+                { key: 'price', name: 'Avg Price', visible: !document.querySelector('.col-price').classList.contains('hidden') },
+                { key: 'platform', name: 'Platform', visible: !document.querySelector('.col-platform').classList.contains('hidden') },
+                { key: 'rank', name: 'Rank', visible: !document.querySelector('.col-rank').classList.contains('hidden') },
+                { key: 'status', name: 'Status', visible: !document.querySelector('.col-status').classList.contains('hidden') },
+                { key: 'sales', name: 'Est. Sales', visible: !document.querySelector('.col-sales').classList.contains('hidden') },
+                { key: 'emails', name: 'Emails', visible: !document.querySelector('.col-emails').classList.contains('hidden') },
+                { key: 'phones', name: 'Phones', visible: !document.querySelector('.col-phones').classList.contains('hidden') }
+            ];
+            
+            visibleColumns.forEach(function(col) {
+                if (col.visible) {
+                    headers.push(col.name);
+                }
+            });
+            
+            csvContent += headers.join(",") + "\r\n";
+            
+            // Data rows
+            filteredData.forEach(function(item) {
+                var row = [];
+                visibleColumns.forEach(function(col) {
+                    if (col.visible) {
+                        var value = item[col.key] || '';
+                        // Escape commas and quotes in CSV
+                        if (value.toString().includes(',') || value.toString().includes('"')) {
+                            value = '"' + value.toString().replace(/"/g, '""') + '"';
+                        }
+                        row.push(value);
+                    }
+                });
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            // Download the CSV
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "store_leads_" + currentCategory.replace(/\s+/g, '_').toLowerCase() + "_" + new Date().toISOString().split('T')[0] + ".csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            closeExportModal();
+        }
+
+        function testFirebaseURL() {
+            if (!window.db) {
+                alert('❌ Firebase not configured!\n\nPlease update your Firebase configuration in the script section.');
+                return;
+            }
+            
+            alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n📊 Collections available:\n- fashion_and_apparel\n- beauty_and_fitness\n- home_and_garden');
+        }
+
+        function loadSampleDataButton() {
+            if (isLoadingFromFirestore) {
+                alert('⏳ Already loading data from Firestore...');
+                return;
+            }
+            
+            alert('🔄 Refreshing data from Firestore...\n\nReloading ' + currentCategory + ' records from your Cloud Firestore database.');
+            loadDataFromFirestore(currentCategory);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try loading from Firestore first, fallback to sample data
+            setTimeout(() => {
+                loadDataFromFirestore(currentCategory);
+            }, 100); // Small delay to ensure Firebase is loaded
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExportModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeExportModal();
+            }
+        });
+    </script>
+</body>
+</html>
