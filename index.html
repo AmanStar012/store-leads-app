@@ -103,6 +103,8 @@
                             <option value="Fashion & Apparel">Fashion & Apparel</option>
                             <option value="Beauty & Fitness">Beauty & Fitness</option>
                             <option value="Home & Garden">Home & Garden</option>
+                            <option value="Food & Drink">Food & Drink</option>
+                            <option value="Business & Industrial">Business & Industrial</option>
                         </select>
                     </div>
 
@@ -346,6 +348,8 @@
                         <div>• Fashion & Apparel: Complete e-commerce store database</div>
                         <div>• Beauty & Fitness: Health and wellness businesses</div>
                         <div>• Home & Garden: Furniture and decor retailers</div>
+                        <div>• Food & Drink: Restaurants, cafes, and food businesses</div>
+                        <div>• Business & Industrial: B2B services and industrial companies</div>
                     </div>
                 </div>
             </div>
@@ -363,42 +367,45 @@
         var driveLinks = {
             'Fashion & Apparel': 'https://drive.google.com/file/d/16AsWtHmdaRq4E3i_8I5slS7K2QAYpc1j/view?usp=sharing',
             'Beauty & Fitness': 'https://drive.google.com/file/d/11AJRr1OgwL2bMiVuetaTD2-k-02ANWuV/view?usp=sharing',
-            'Home & Garden': 'https://drive.google.com/file/d/12O1q1GFfP7UV8PUyuT4lQa-YBZxBo7rW/view?usp=sharing'
+            'Home & Garden': 'https://drive.google.com/file/d/12O1q1GFfP7UV8PUyuT4lQa-YBZxBo7rW/view?usp=sharing',
+            'Food & Drink': 'https://drive.google.com/file/d/1bey7FNE5lV0YsNKxcBcRvmMEQqwN7gaW/view?usp=sharing',
+            'Business & Industrial': 'https://drive.google.com/file/d/131RTDXyO1k4xIllp07wlBhgZSVyhy3Xc/view?usp=sharing'
         };
 
-        // Business data with comprehensive Indian e-commerce companies
-        var businessData = [
-            { domain: 'www.studiosuits.com', merchant: 'StudioSuits', city: 'Mumbai', state: 'Maharashtra', price: '₹1870', platform: 'Shopify', rank: 1146, status: 'Active', sales: '$44250', emails: 'contact@studiosuits.com', phones: '+91-28520-75153' },
-            { domain: 'www.giva.co', merchant: 'GIVA', city: 'Bengaluru', state: 'Karnataka', price: '₹1378', platform: 'Shopify', rank: 5883, status: 'Active', sales: '$28161', emails: 'contact@giva.co', phones: '+91-26064-16648' },
-            { domain: 'www.westside.com', merchant: 'Westside', city: 'Mumbai', state: 'Maharashtra', price: '₹4102', platform: 'Shopify', rank: 8497, status: 'Active', sales: '$72183', emails: 'contact@westside.com', phones: '+91-12491-60886' },
-            { domain: 'www.myntra.com', merchant: 'Myntra', city: 'Bengaluru', state: 'Karnataka', price: '₹2800', platform: 'Shopify', rank: 1200, status: 'Active', sales: '$85000', emails: 'support@myntra.com', phones: '+91-80-1234-5678' },
-            { domain: 'www.ajio.com', merchant: 'AJIO', city: 'Mumbai', state: 'Maharashtra', price: '₹3500', platform: 'Shopify', rank: 1500, status: 'Active', sales: '$90000', emails: 'care@ajio.com', phones: '+91-22-2345-6789' },
-            { domain: 'www.fabindia.com', merchant: 'Fabindia', city: 'New Delhi', state: 'Delhi', price: '₹2200', platform: 'Shopify', rank: 7890, status: 'Active', sales: '$67000', emails: 'customercare@fabindia.com', phones: '+91-11-2789-0123' },
-            { domain: 'www.nykaa.com', merchant: 'Nykaa', city: 'Mumbai', state: 'Maharashtra', price: '₹850', platform: 'Shopify', rank: 1234, status: 'Active', sales: '$125000', emails: 'support@nykaa.com', phones: '+91-22-3456-7890' },
-            { domain: 'www.mamaearth.in', merchant: 'Mamaearth', city: 'Gurugram', state: 'Haryana', price: '₹520', platform: 'Shopify', rank: 2345, status: 'Active', sales: '$89000', emails: 'care@mamaearth.in', phones: '+91-124-456-7890' },
-            { domain: 'www.pepperfry.com', merchant: 'Pepperfry', city: 'Mumbai', state: 'Maharashtra', price: '₹15000', platform: 'Shopify', rank: 1456, status: 'Active', sales: '$250000', emails: 'support@pepperfry.com', phones: '+91-22-1456-7890' },
-            { domain: 'www.urbanladder.com', merchant: 'Urban Ladder', city: 'Bengaluru', state: 'Karnataka', price: '₹12000', platform: 'Shopify', rank: 2567, status: 'Active', sales: '$180000', emails: 'care@urbanladder.com', phones: '+91-80-2567-8901' },
-            { domain: 'www.ikea.com', merchant: 'IKEA India', city: 'Hyderabad', state: 'Telangana', price: '₹8000', platform: 'Shopify', rank: 3678, status: 'Active', sales: '$320000', emails: 'customerservice@ikea.com', phones: '+91-40-3678-9012' },
-            { domain: 'www.zara.com', merchant: 'Zara India', city: 'Mumbai', state: 'Maharashtra', price: '₹5500', platform: 'Shopify', rank: 800, status: 'Active', sales: '$150000', emails: 'info@zara.com', phones: '+91-22-0123-4567' },
-            { domain: 'www.hm.com', merchant: 'H&M India', city: 'Delhi', state: 'Delhi', price: '₹2900', platform: 'Shopify', rank: 1000, status: 'Active', sales: '$120000', emails: 'care@hm.com', phones: '+91-11-1234-5678' },
-            { domain: 'www.lakme.com', merchant: 'Lakme', city: 'Mumbai', state: 'Maharashtra', price: '₹450', platform: 'Shopify', rank: 6789, status: 'Active', sales: '$95000', emails: 'customercare@lakme.com', phones: '+91-22-6789-0123' },
-            { domain: 'www.godrejinterio.com', merchant: 'Godrej Interio', city: 'Mumbai', state: 'Maharashtra', price: '₹25000', platform: 'Shopify', rank: 4789, status: 'Active', sales: '$450000', emails: 'info@godrejinterio.com', phones: '+91-22-4789-0123' },
-            { domain: 'www.sleepwell.in', merchant: 'Sleepwell', city: 'New Delhi', state: 'Delhi', price: '₹16000', platform: 'Shopify', rank: 7012, status: 'Active', sales: '$220000', emails: 'info@sleepwell.in', phones: '+91-11-7012-3456' },
-            { domain: 'www.pantaloons.com', merchant: 'Pantaloons', city: 'Kolkata', state: 'West Bengal', price: '₹2600', platform: 'Shopify', rank: 2000, status: 'Active', sales: '$75000', emails: 'info@pantaloons.com', phones: '+91-33-3456-7890' },
-            { domain: 'www.sugarcosmetics.com', merchant: 'SUGAR Cosmetics', city: 'Mumbai', state: 'Maharashtra', price: '₹650', platform: 'Shopify', rank: 4567, status: 'Active', sales: '$78000', emails: 'support@sugarcosmetics.com', phones: '+91-22-4567-8901' },
-            { domain: 'www.kurlon.com', merchant: 'Kurlon', city: 'Bengaluru', state: 'Karnataka', price: '₹14000', platform: 'Shopify', rank: 8123, status: 'Active', sales: '$190000', emails: 'support@kurlon.com', phones: '+91-80-8123-4567' },
-            { domain: 'www.woodenstreet.com', merchant: 'WoodenStreet', city: 'Jaipur', state: 'Rajasthan', price: '₹9000', platform: 'Shopify', rank: 9234, status: 'Active', sales: '$120000', emails: 'care@woodenstreet.com', phones: '+91-141-9234-5678' },
-            { domain: 'www.biotique.com', merchant: 'Biotique', city: 'New Delhi', state: 'Delhi', price: '₹320', platform: 'Shopify', rank: 7890, status: 'Active', sales: '$56000', emails: 'info@biotique.com', phones: '+91-11-7890-1234' },
-            { domain: 'www.maxfashion.com', merchant: 'Max Fashion', city: 'Pune', state: 'Maharashtra', price: '₹1800', platform: 'Shopify', rank: 2500, status: 'Active', sales: '$55000', emails: 'contact@maxfashion.com', phones: '+91-20-4567-8901' },
-            { domain: 'www.himalayawellness.com', merchant: 'Himalaya Wellness', city: 'Bengaluru', state: 'Karnataka', price: '₹280', platform: 'Shopify', rank: 8901, status: 'Active', sales: '$87000', emails: 'support@himalayawellness.com', phones: '+91-80-8901-2345' },
-            { domain: 'www.duroflex.com', merchant: 'Duroflex', city: 'Bengaluru', state: 'Karnataka', price: '₹18000', platform: 'Shopify', rank: 5890, status: 'Active', sales: '$280000', emails: 'support@duroflex.com', phones: '+91-80-5890-1234' },
-            { domain: 'www.plumgoodness.com', merchant: 'Plum Goodness', city: 'Mumbai', state: 'Maharashtra', price: '₹720', platform: 'Shopify', rank: 5678, status: 'Active', sales: '$65000', emails: 'hello@plumgoodness.com', phones: '+91-22-5678-9012' },
-            { domain: 'www.nilkamal.com', merchant: 'Nilkamal', city: 'Mumbai', state: 'Maharashtra', price: '₹5000', platform: 'Shopify', rank: 6901, status: 'Active', sales: '$150000', emails: 'customercare@nilkamal.com', phones: '+91-22-6901-2345' },
-            { domain: 'www.forestessentials.com', merchant: 'Forest Essentials', city: 'New Delhi', state: 'Delhi', price: '₹1200', platform: 'Shopify', rank: 9012, status: 'Active', sales: '$125000', emails: 'care@forestessentials.com', phones: '+91-11-9012-3456' },
-            { domain: 'www.hometown.in', merchant: 'Hometown', city: 'Mumbai', state: 'Maharashtra', price: '₹11000', platform: 'Shopify', rank: 1345, status: 'Active', sales: '$160000', emails: 'support@hometown.in', phones: '+91-22-1345-6789' },
-            { domain: 'www.uniqlo.com', merchant: 'Uniqlo India', city: 'Bengaluru', state: 'Karnataka', price: '₹2200', platform: 'Shopify', rank: 1300, status: 'Active', sales: '$98000', emails: 'support@uniqlo.com', phones: '+91-80-2345-6789' },
-            { domain: 'www.livspace.com', merchant: 'Livspace', city: 'Bengaluru', state: 'Karnataka', price: '₹22000', platform: 'Shopify', rank: 1800, status: 'Active', sales: '$290000', emails: 'hello@livspace.com', phones: '+91-80-1800-2800' }
-        ];
+        // Sample business data for different categories
+        var sampleDataByCategory = {
+            'Fashion & Apparel': [
+                { domain: 'www.studiosuits.com', merchant: 'StudioSuits', city: 'Mumbai', state: 'Maharashtra', price: '₹1870', platform: 'Shopify', rank: 1146, status: 'Active', sales: '$44250', emails: 'contact@studiosuits.com', phones: '+91-28520-75153' },
+                { domain: 'www.giva.co', merchant: 'GIVA', city: 'Bengaluru', state: 'Karnataka', price: '₹1378', platform: 'Shopify', rank: 5883, status: 'Active', sales: '$28161', emails: 'contact@giva.co', phones: '+91-26064-16648' },
+                { domain: 'www.westside.com', merchant: 'Westside', city: 'Mumbai', state: 'Maharashtra', price: '₹4102', platform: 'Shopify', rank: 8497, status: 'Active', sales: '$72183', emails: 'contact@westside.com', phones: '+91-12491-60886' },
+                { domain: 'www.myntra.com', merchant: 'Myntra', city: 'Bengaluru', state: 'Karnataka', price: '₹2800', platform: 'Shopify', rank: 1200, status: 'Active', sales: '$85000', emails: 'support@myntra.com', phones: '+91-80-1234-5678' },
+                { domain: 'www.ajio.com', merchant: 'AJIO', city: 'Mumbai', state: 'Maharashtra', price: '₹3500', platform: 'Shopify', rank: 1500, status: 'Active', sales: '$90000', emails: 'care@ajio.com', phones: '+91-22-2345-6789' }
+            ],
+            'Food & Drink': [
+                { domain: 'www.zomato.com', merchant: 'Zomato', city: 'Gurugram', state: 'Haryana', price: '₹350', platform: 'Shopify', rank: 150, status: 'Active', sales: '$2500000', emails: 'support@zomato.com', phones: '+91-124-456-7890' },
+                { domain: 'www.swiggy.com', merchant: 'Swiggy', city: 'Bengaluru', state: 'Karnataka', price: '₹280', platform: 'Shopify', rank: 120, status: 'Active', sales: '$3200000', emails: 'care@swiggy.com', phones: '+91-80-3456-7890' },
+                { domain: 'www.dominos.co.in', merchant: 'Dominos India', city: 'Mumbai', state: 'Maharashtra', price: '₹450', platform: 'Shopify', rank: 890, status: 'Active', sales: '$850000', emails: 'feedback@dominos.co.in', phones: '+91-22-6789-0123' },
+                { domain: 'www.pizzahut.co.in', merchant: 'Pizza Hut India', city: 'New Delhi', state: 'Delhi', price: '₹520', platform: 'Shopify', rank: 1200, status: 'Active', sales: '$750000', emails: 'care@pizzahut.co.in', phones: '+91-11-7890-1234' },
+                { domain: 'www.subway.co.in', merchant: 'Subway India', city: 'Pune', state: 'Maharashtra', price: '₹180', platform: 'Shopify', rank: 2100, status: 'Active', sales: '$450000', emails: 'contact@subway.co.in', phones: '+91-20-4567-8901' },
+                { domain: 'www.mcdonalds.co.in', merchant: 'McDonalds India', city: 'Mumbai', state: 'Maharashtra', price: '₹250', platform: 'Shopify', rank: 650, status: 'Active', sales: '$1200000', emails: 'service@mcdonalds.co.in', phones: '+91-22-5678-9012' },
+                { domain: 'www.kfc.co.in', merchant: 'KFC India', city: 'Bengaluru', state: 'Karnataka', price: '₹320', platform: 'Shopify', rank: 780, status: 'Active', sales: '$980000', emails: 'feedback@kfc.co.in', phones: '+91-80-6789-0123' },
+                { domain: 'www.barbeque-nation.com', merchant: 'Barbeque Nation', city: 'Mumbai', state: 'Maharashtra', price: '₹899', platform: 'Shopify', rank: 1850, status: 'Active', sales: '$420000', emails: 'contact@barbeque-nation.com', phones: '+91-22-7890-1234' },
+                { domain: 'www.theobroma.in', merchant: 'Theobroma', city: 'Mumbai', state: 'Maharashtra', price: '₹350', platform: 'Shopify', rank: 3200, status: 'Active', sales: '$280000', emails: 'hello@theobroma.in', phones: '+91-22-8901-2345' },
+                { domain: 'www.dunkindonuts.in', merchant: 'Dunkin Donuts', city: 'New Delhi', state: 'Delhi', price: '₹150', platform: 'Shopify', rank: 4100, status: 'Active', sales: '$180000', emails: 'support@dunkindonuts.in', phones: '+91-11-9012-3456' }
+            ],
+            'Business & Industrial': [
+                { domain: 'www.tcs.com', merchant: 'Tata Consultancy Services', city: 'Mumbai', state: 'Maharashtra', price: '₹125000', platform: 'Shopify', rank: 45, status: 'Active', sales: '$22000000', emails: 'contact@tcs.com', phones: '+91-22-6778-9999' },
+                { domain: 'www.infosys.com', merchant: 'Infosys', city: 'Bengaluru', state: 'Karnataka', price: '₹98000', platform: 'Shopify', rank: 52, status: 'Active', sales: '$16800000', emails: 'info@infosys.com', phones: '+91-80-2852-0261' },
+                { domain: 'www.wipro.com', merchant: 'Wipro', city: 'Bengaluru', state: 'Karnataka', price: '₹85000', platform: 'Shopify', rank: 78, status: 'Active', sales: '$8900000', emails: 'contact@wipro.com', phones: '+91-80-8468-4000' },
+                { domain: 'www.hcl.com', merchant: 'HCL Technologies', city: 'Noida', state: 'Uttar Pradesh', price: '₹75000', platform: 'Shopify', rank: 89, status: 'Active', sales: '$11200000', emails: 'info@hcl.com', phones: '+91-120-254-8000' },
+                { domain: 'www.mindtree.com', merchant: 'Mindtree', city: 'Bengaluru', state: 'Karnataka', price: '₹68000', platform: 'Shopify', rank: 156, status: 'Active', sales: '$1050000', emails: 'contact@mindtree.com', phones: '+91-80-6706-4000' },
+                { domain: 'www.techm.com', merchant: 'Tech Mahindra', city: 'Pune', state: 'Maharashtra', price: '₹72000', platform: 'Shopify', rank: 134, status: 'Active', sales: '$5200000', emails: 'info@techm.com', phones: '+91-20-3075-7000' },
+                { domain: 'www.ltimindtree.com', merchant: 'LTIMindtree', city: 'Mumbai', state: 'Maharashtra', price: '₹89000', platform: 'Shopify', rank: 198, status: 'Active', sales: '$3800000', emails: 'contact@ltimindtree.com', phones: '+91-22-6776-7776' },
+                { domain: 'www.cognizant.com', merchant: 'Cognizant India', city: 'Chennai', state: 'Tamil Nadu', price: '₹82000', platform: 'Shopify', rank: 167, status: 'Active', sales: '$18500000', emails: 'india@cognizant.com', phones: '+91-44-4209-6000' },
+                { domain: 'www.capgemini.com', merchant: 'Capgemini India', city: 'Mumbai', state: 'Maharashtra', price: '₹95000', platform: 'Shopify', rank: 245, status: 'Active', sales: '$4200000', emails: 'india.contact@capgemini.com', phones: '+91-22-6755-7000' },
+                { domain: 'www.accenture.com', merchant: 'Accenture India', city: 'Bengaluru', state: 'Karnataka', price: '₹110000', platform: 'Shopify', rank: 89, status: 'Active', sales: '$15800000', emails: 'india@accenture.com', phones: '+91-80-6749-4000' }
+            ]
+        };
 
         var currentCategory = 'Fashion & Apparel';
         var currentPage = 1;
@@ -413,7 +420,9 @@
         var categoryToCollection = {
             'Fashion & Apparel': 'fashion_and_apparel',
             'Beauty & Fitness': 'beauty_and_fitness',
-            'Home & Garden': 'home_and_garden'
+            'Home & Garden': 'home_and_garden',
+            'Food & Drink': 'food_and_drink',
+            'Business & Industrial': 'business_and_industrial'
         };
 
         function getCompanySize(employeeCount) {
@@ -560,6 +569,8 @@
 
         // Fallback to sample data
         function loadSampleData() {
+            var businessData = sampleDataByCategory[currentCategory] || sampleDataByCategory['Fashion & Apparel'];
+            
             allData = [];
             for (var i = 0; i < businessData.length; i++) {
                 var row = businessData[i];
@@ -585,6 +596,7 @@
             filteredData = allData.slice();
             updateRecordCount();
             updateExportModalContent();
+            renderTable();
         }
 
         function updateRecordCount() {
@@ -970,7 +982,7 @@
                 return;
             }
             
-            alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n📊 Collections available:\n- fashion_and_apparel\n- beauty_and_fitness\n- home_and_garden');
+            alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n📊 Collections available:\n- fashion_and_apparel\n- beauty_and_fitness\n- home_and_garden\n- food_and_drink\n- business_and_industrial');
         }
 
         function loadSampleDataButton() {
