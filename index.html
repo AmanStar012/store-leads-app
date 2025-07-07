@@ -547,7 +547,7 @@
                 
                 console.log('Loaded', allData.length, 'records from Firestore');
                 document.getElementById('statusText').textContent = 
-                    '✅ ' + allData.length + ' ' + categoryName + ' records loaded from Firestore';
+                    '✅ ' + "Loading" + ' ' + categoryName + ' records from Database';
                 
                 filteredData = allData.slice();
                 isLoadingFromFirestore = false;
