@@ -25,22 +25,17 @@
         // Initialize Firebase
         let app, db;
         try {
-            // Check if config is properly set
             if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-                console.log('Firebase config not set, using sample data');
                 window.db = null;
             } else {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 window.db = db;
-                console.log('Firebase initialized successfully');
             }
         } catch (error) {
-            console.error('Firebase initialization failed:', error);
             window.db = null;
         }
         
-        // Make Firebase available globally
         window.firebaseModules = { collection, getDocs, query, where, orderBy, limit };
     </script>
     <style>
@@ -97,6 +92,18 @@
                     </div>
 
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                        <select id="countrySelect" onchange="changeCountry()" 
+                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="India" selected>🇮🇳 India</option>
+                            <option value="USA">🇺🇸 USA</option>
+                        </select>
+                        <div class="mt-2 text-xs text-gray-500">
+                            <div id="countryStats">India: 30 records</div>
+                        </div>
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
                         <select id="categorySelect" onchange="changeCategory()" 
                                 class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -117,22 +124,6 @@
                             <option value="Toys & Hobbies">Toys & Hobbies</option>
                             <option value="Travel">Travel</option>
                         </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                        <select id="countrySelect" onchange="filterByCountry()" 
-                                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="All">All Countries</option>
-                            <option value="India" selected>India</option>
-                            <option value="USA">USA</option>
-                            <option value="UK">UK</option>
-                            <option value="Canada">Canada</option>
-                            <option value="Australia">Australia</option>
-                        </select>
-                        <div class="mt-2 text-xs text-gray-500">
-                            <div id="countryStats">India: 30 records</div>
-                        </div>
                     </div>
 
                     <div>
@@ -386,26 +377,45 @@
 
     <script>
         var driveLinks = {
-            'Fashion & Apparel': 'https://drive.google.com/file/d/16AsWtHmdaRq4E3i_8I5slS7K2QAYpc1j/view?usp=sharing',
-            'Beauty & Fitness': 'https://drive.google.com/file/d/11AJRr1OgwL2bMiVuetaTD2-k-02ANWuV/view?usp=sharing',
-            'Home & Garden': 'https://drive.google.com/file/d/12O1q1GFfP7UV8PUyuT4lQa-YBZxBo7rW/view?usp=sharing',
-            'Food & Drink': 'https://drive.google.com/file/d/1bey7FNE5lV0YsNKxcBcRvmMEQqwN7gaW/view?usp=sharing',
-            'Business & Industrial': 'https://drive.google.com/file/d/131RTDXyO1k4xIllp07wlBhgZSVyhy3Xc/view?usp=sharing',
-            'Auto & Vehicles': 'https://drive.google.com/file/d/1oQFOUryJ6_uH0HpLI4Ee_9JwBu2hRMlM/view?usp=sharing',
-            'Arts & Entertainment': 'https://drive.google.com/file/d/1BHNSlI88wAGATvt42S6mZScpSPeRNEf-/view?usp=sharing',
-            'Consumer Electronics': 'https://drive.google.com/file/d/1hkmmfG4vaceCrHZmuU7BRfPhz0mfKVul/view?usp=sharing',
-            'Finance': 'https://drive.google.com/file/d/1fHajih_Od8YWvXN-veQWCjpXba-zg_y7/view?usp=sharing',
-            'Gifts & Special Events': 'https://drive.google.com/file/d/1sCzTurC2xY4lkpxB_e0Y8DtwZqYn2IuC/view?usp=sharing',
-            'Health': 'https://drive.google.com/file/d/1WOQoVnHN5sofp_Rt0HYH1Vt4vfHvLQJc/view?usp=sharing',
-            'Jobs & Education': 'https://drive.google.com/file/d/1yhlVnm5neE0ylBmwM9GBV-rcTAK2zmch/view?usp=sharing',
-            'Pets & Animals': 'https://drive.google.com/file/d/1wdfUPL8wO5AQFhsod9eVeYrhGkvmtpAX/view?usp=sharing',
-            'Sports': 'https://drive.google.com/file/d/1KtQtC-yXDPAeViJF0Mgra5hX4PKlPApu/view?usp=sharing',
-            'Toys & Hobbies': 'https://drive.google.com/file/d/1tbaAfHcvURfdovUqUD0iguTmvenxnbeT/view?usp=sharing',
-            'Travel': 'https://drive.google.com/file/d/1wUnF3B79n1r5DSB9KGcV3zoxGw5Nx3Tf/view?usp=sharing'
+            'India': {
+                'Fashion & Apparel': 'https://drive.google.com/file/d/16AsWtHmdaRq4E3i_8I5slS7K2QAYpc1j/view?usp=sharing',
+                'Beauty & Fitness': 'https://drive.google.com/file/d/11AJRr1OgwL2bMiVuetaTD2-k-02ANWuV/view?usp=sharing',
+                'Home & Garden': 'https://drive.google.com/file/d/12O1q1GFfP7UV8PUyuT4lQa-YBZxBo7rW/view?usp=sharing',
+                'Food & Drink': 'https://drive.google.com/file/d/1bey7FNE5lV0YsNKxcBcRvmMEQqwN7gaW/view?usp=sharing',
+                'Business & Industrial': 'https://drive.google.com/file/d/131RTDXyO1k4xIllp07wlBhgZSVyhy3Xc/view?usp=sharing',
+                'Auto & Vehicles': 'https://drive.google.com/file/d/1oQFOUryJ6_uH0HpLI4Ee_9JwBu2hRMlM/view?usp=sharing',
+                'Arts & Entertainment': 'https://drive.google.com/file/d/1BHNSlI88wAGATvt42S6mZScpSPeRNEf-/view?usp=sharing',
+                'Consumer Electronics': 'https://drive.google.com/file/d/1hkmmfG4vaceCrHZmuU7BRfPhz0mfKVul/view?usp=sharing',
+                'Finance': 'https://drive.google.com/file/d/1fHajih_Od8YWvXN-veQWCjpXba-zg_y7/view?usp=sharing',
+                'Gifts & Special Events': 'https://drive.google.com/file/d/1sCzTurC2xY4lkpxB_e0Y8DtwZqYn2IuC/view?usp=sharing',
+                'Health': 'https://drive.google.com/file/d/1WOQoVnHN5sofp_Rt0HYH1Vt4vfHvLQJc/view?usp=sharing',
+                'Jobs & Education': 'https://drive.google.com/file/d/1yhlVnm5neE0ylBmwM9GBV-rcTAK2zmch/view?usp=sharing',
+                'Pets & Animals': 'https://drive.google.com/file/d/1wdfUPL8wO5AQFhsod9eVeYrhGkvmtpAX/view?usp=sharing',
+                'Sports': 'https://drive.google.com/file/d/1KtQtC-yXDPAeViJF0Mgra5hX4PKlPApu/view?usp=sharing',
+                'Toys & Hobbies': 'https://drive.google.com/file/d/1tbaAfHcvURfdovUqUD0iguTmvenxnbeT/view?usp=sharing',
+                'Travel': 'https://drive.google.com/file/d/1wUnF3B79n1r5DSB9KGcV3zoxGw5Nx3Tf/view?usp=sharing'
+            },
+            'USA': {
+                'Fashion & Apparel': 'https://drive.google.com/file/d/1pIIioJwd-zg90WFK-jkCL908v7wOYoCp/view?usp=sharing',
+                'Beauty & Fitness': 'https://drive.google.com/file/d/1zDjjupAUvRgrt_95REUX2Ru2zkPnYP3p/view?usp=sharing',
+                'Home & Garden': 'https://drive.google.com/file/d/1mI_FN-cZp6cO6Ehk7EECgnGSHYGRiMno/view?usp=sharing',
+                'Food & Drink': 'https://drive.google.com/file/d/17MYHLB-r_LYkj8-mdm9zeSBAW59SVGvq/view?usp=sharing',
+                'Business & Industrial': 'https://drive.google.com/file/d/1TplGk_mEe3Z6Q2yt9q8R-E4a5yUbmxo8/view?usp=sharing',
+                'Auto & Vehicles': 'https://drive.google.com/file/d/1ZcDmaKUNGGgefgq5jhQRH0yB03FtJge0/view?usp=sharing',
+                'Arts & Entertainment': 'https://drive.google.com/file/d/1z9YbKmLSXoQEgJtKZOpt594S38U05Zgp/view?usp=sharing',
+                'Consumer Electronics': 'https://drive.google.com/file/d/1ykwEDddBS1lPQfQuGzQlPcG2WJIU2GPG/view?usp=sharing',
+                'Finance': 'https://drive.google.com/file/d/18pmcbMBqKiw3Nri_bJzBrpwN6AEdY-mQ/view?usp=sharing',
+                'Gifts & Special Events': 'https://drive.google.com/file/d/1t9faU3RTnQvSaDvkatTk79OtsXzBiqA_/view?usp=sharing',
+                'Health': 'https://drive.google.com/file/d/1d3EgpbqABtSCIZyy7rkYNOtyh-Ynq9-_/view?usp=sharing',
+                'Jobs & Education': 'https://drive.google.com/file/d/1M7jeroqb15ONw0t8IyqmtD8hvQiaqx0B/view?usp=sharing',
+                'Pets & Animals': 'https://drive.google.com/file/d/1BS8egFWgFuO-8n4WOheJYiCYDGh-kwSk/view?usp=sharing',
+                'Sports': 'https://drive.google.com/file/d/1vcc3nYrcwIPbyndgXJWGK-K8HbE7SQD6/view?usp=sharing',
+                'Toys & Hobbies': 'https://drive.google.com/file/d/16GDHsNUTYWBnEhGjG-Yk5zFeEblvVJ6Y/view?usp=sharing',
+                'Travel': 'https://drive.google.com/file/d/1qOyAcYC-giwPXB97z7pVGQ8K9FPIeEyY/view?usp=sharing'
+            }
         };
 
-        var sampleDataByCategory = {};
-
+        var currentCountry = 'India';
         var currentCategory = 'Fashion & Apparel';
         var currentPage = 1;
         var itemsPerPage = 30;
@@ -413,25 +423,45 @@
         var filteredData = [];
         var selectedRows = new Set();
         var isLoadingFromFirestore = false;
-        var currentSort = { column: null, direction: null }; // Track current sort state
+        var currentSort = { column: null, direction: null };
 
         var categoryToCollection = {
-            'Fashion & Apparel': 'fashion_and_apparel',
-            'Beauty & Fitness': 'beauty_and_fitness',
-            'Home & Garden': 'home_and_garden',
-            'Food & Drink': 'food_and_drink',
-            'Business & Industrial': 'business_and_industrial',
-            'Auto & Vehicles': 'auto_and_vehicles',
-            'Arts & Entertainment': 'arts_and_entertainment',
-            'Consumer Electronics': 'consumer_electronics',
-            'Finance': 'finance',
-            'Gifts & Special Events': 'gifts_and_special_events',
-            'Health': 'health',
-            'Jobs & Education': 'jobs_and_education',
-            'Pets & Animals': 'pets_and_animals',
-            'Sports': 'sports',
-            'Toys & Hobbies': 'toys_and_hobbies',
-            'Travel': 'travel'
+            'India': {
+                'Fashion & Apparel': 'fashion_and_apparel',
+                'Beauty & Fitness': 'beauty_and_fitness',
+                'Home & Garden': 'home_and_garden',
+                'Food & Drink': 'food_and_drink',
+                'Business & Industrial': 'business_and_industrial',
+                'Auto & Vehicles': 'auto_and_vehicles',
+                'Arts & Entertainment': 'arts_and_entertainment',
+                'Consumer Electronics': 'consumer_electronics',
+                'Finance': 'finance',
+                'Gifts & Special Events': 'gifts_and_special_events',
+                'Health': 'health',
+                'Jobs & Education': 'jobs_and_education',
+                'Pets & Animals': 'pets_and_animals',
+                'Sports': 'sports',
+                'Toys & Hobbies': 'toys_and_hobbies',
+                'Travel': 'travel'
+            },
+            'USA': {
+                'Fashion & Apparel': 'fashion_and_apparel_usa',
+                'Beauty & Fitness': 'beauty_and_fitness_usa',
+                'Home & Garden': 'home_and_garden_usa',
+                'Food & Drink': 'food_and_drink_usa',
+                'Business & Industrial': 'business_and_industrial_usa',
+                'Auto & Vehicles': 'auto_and_vehicles_usa',
+                'Arts & Entertainment': 'arts_and_entertainment_usa',
+                'Consumer Electronics': 'consumer_electronics_usa',
+                'Finance': 'finance_usa',
+                'Gifts & Special Events': 'gifts_and_special_events_usa',
+                'Health': 'health_usa',
+                'Jobs & Education': 'jobs_and_education_usa',
+                'Pets & Animals': 'pets_and_animals_usa',
+                'Sports': 'sports_usa',
+                'Toys & Hobbies': 'toys_and_hobbies_usa',
+                'Travel': 'travel_usa'
+            }
         };
 
         function getCompanySize(employeeCount) {
@@ -443,55 +473,45 @@
             return '1000+';
         }
 
-        // Download full dataset from Google Drive
         function downloadFullDataset() {
-            var downloadUrl = driveLinks[currentCategory];
+            var downloadUrl = driveLinks[currentCountry] && driveLinks[currentCountry][currentCategory];
             if (!downloadUrl) {
-                alert('❌ Download link not available for ' + currentCategory);
+                alert('❌ Download link not available for ' + currentCategory + ' in ' + currentCountry);
                 return;
             }
             
-            // Convert Google Drive view link to direct download link
             var fileId = downloadUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
             if (fileId && fileId[1]) {
                 var directDownloadUrl = 'https://drive.google.com/uc?export=download&id=' + fileId[1];
                 
-                // Show download starting message
                 var downloadBtn = event.target.closest('button');
                 var originalContent = downloadBtn.innerHTML;
                 downloadBtn.innerHTML = '<div class="flex items-center justify-center space-x-2"><span class="animate-spin">🔄</span><span>Starting Download...</span></div>';
                 
-                // Create temporary link and trigger download
                 var link = document.createElement('a');
                 link.href = directDownloadUrl;
-                link.download = currentCategory.replace(/\s+/g, '_').toLowerCase() + '_complete_dataset.csv';
+                link.download = currentCountry.toLowerCase() + '_' + currentCategory.replace(/\s+/g, '_').toLowerCase() + '_complete_dataset.csv';
                 link.target = '_blank';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 
-                // Reset button after 2 seconds
                 setTimeout(function() {
                     downloadBtn.innerHTML = originalContent;
                     closeExportModal();
                 }, 2000);
-                
-                // Track download
-                console.log('Downloaded:', currentCategory, 'from:', downloadUrl);
             } else {
-                // Fallback to opening the Google Drive link
                 window.open(downloadUrl, '_blank');
                 closeExportModal();
             }
         }
 
-        // Update modal content when category changes
         function updateExportModalContent() {
             var fullDatasetDesc = document.getElementById('fullDatasetDescription');
             var currentViewCount = document.getElementById('currentViewCount');
             
             if (fullDatasetDesc) {
-                fullDatasetDesc.textContent = currentCategory + ' - Full database with all records';
+                fullDatasetDesc.textContent = currentCategory + ' (' + currentCountry + ') - Full database with all records';
             }
             
             if (currentViewCount) {
@@ -499,11 +519,11 @@
             }
         }
 
-        // Load data from Firestore
-        async function loadDataFromFirestore(categoryName) {
+        async function loadDataFromFirestore(countryName, categoryName) {
             if (!window.db || !window.firebaseModules) {
-                console.log('Firebase not initialized, using sample data');
-                loadSampleData();
+                allData = [];
+                filteredData = [];
+                renderTable();
                 return;
             }
 
@@ -511,8 +531,10 @@
                 isLoadingFromFirestore = true;
                 updateLoadingState(true);
                 
-                var collectionName = categoryToCollection[categoryName] || 'fashion_and_apparel';
-                console.log('Loading data from Firestore collection:', collectionName);
+                var collectionName = categoryToCollection[countryName] && categoryToCollection[countryName][categoryName];
+                if (!collectionName) {
+                    throw new Error('Collection not found for ' + countryName + ' - ' + categoryName);
+                }
                 
                 var { collection, getDocs } = window.firebaseModules;
                 var querySnapshot = await getDocs(collection(window.db, collectionName));
@@ -528,8 +550,8 @@
                         merchant: data.merchant_name || data.name || 'Unknown',
                         city: data.city || 'N/A',
                         state: data.state || 'N/A',
-                        country: data.region || data.country || 'India',
-                        price: data.maximum_product_price || data.minimum_product_price || '₹0',
+                        country: countryName,
+                        price: data.maximum_product_price || data.minimum_product_price || (countryName === 'USA' ? '$0' : '₹0'),
                         platform: data.platform || 'Shopify',
                         rank: data.platform_rank || Math.floor(Math.random() * 10000),
                         status: 'Active',
@@ -545,9 +567,9 @@
                     allData.push(item);
                 });
                 
-                console.log('Loaded', allData.length, 'records from Firestore');
+                var countryFlag = countryName === 'USA' ? '🇺🇸' : '🇮🇳';
                 document.getElementById('statusText').textContent = 
-                    '✅ ' + "Loading" + ' ' + categoryName + ' records from Database';
+                    '✅ ' + allData.length + ' ' + categoryName + ' records loaded from ' + countryFlag + ' ' + countryName;
                 
                 filteredData = allData.slice();
                 isLoadingFromFirestore = false;
@@ -557,11 +579,10 @@
                 updateExportModalContent();
                 
             } catch (error) {
-                console.error('Error loading from Firestore:', error);
                 isLoadingFromFirestore = false;
                 updateLoadingState(false);
                 document.getElementById('statusText').innerHTML = 
-                    '❌ Failed to load ' + categoryName + ' data from Firestore';
+                    '❌ Failed to load ' + categoryName + ' data from ' + countryName;
                 document.getElementById('statusText').className = 'text-sm text-red-600';
                 
                 allData = [];
@@ -587,7 +608,6 @@
             var filtered = filteredData.length;
             var startIndex = (currentPage - 1) * itemsPerPage;
             var endIndex = Math.min(startIndex + itemsPerPage, filtered);
-            var showing = Math.min(itemsPerPage, filtered - startIndex);
             
             document.getElementById('recordCount').textContent = 
                 'Showing ' + (startIndex + 1) + '-' + endIndex + ' of ' + filtered + ' records';
@@ -680,16 +700,28 @@
             }
         }
 
+        function changeCountry() {
+            var select = document.getElementById('countrySelect');
+            currentCountry = select.value;
+            currentPage = 1;
+            
+            var countryFlag = currentCountry === 'USA' ? '🇺🇸' : '🇮🇳';
+            document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records from ' + countryFlag + ' ' + currentCountry + '...';
+            updateExportModalContent();
+            
+            loadDataFromFirestore(currentCountry, currentCategory);
+        }
+
         function changeCategory() {
             var select = document.getElementById('categorySelect');
             currentCategory = select.value;
             currentPage = 1;
             
-            document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records...';
+            var countryFlag = currentCountry === 'USA' ? '🇺🇸' : '🇮🇳';
+            document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records from ' + countryFlag + ' ' + currentCountry + '...';
             updateExportModalContent();
             
-            // Load data from Firestore based on category
-            loadDataFromFirestore(currentCategory);
+            loadDataFromFirestore(currentCountry, currentCategory);
         }
 
         function filterData() {
@@ -712,18 +744,14 @@
             applyAllFilters();
         }
 
-        // Sorting functions
         function sortByColumn(column) {
             if (currentSort.column === column) {
-                // Toggle direction if same column
                 currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
             } else {
-                // New column, start with ascending
                 currentSort.column = column;
                 currentSort.direction = 'asc';
             }
             
-            // Update dropdown to reflect current sort
             var sortValue = column + '_' + currentSort.direction;
             document.getElementById('sortSelect').value = sortValue;
             
@@ -751,18 +779,16 @@
                 
                 switch (column) {
                     case 'sales':
-                        // Extract numeric value from sales string (e.g., "$44250" -> 44250)
-                        aVal = parseFloat(a.sales.replace(/[$,]/g, '')) || 0;
-                        bVal = parseFloat(b.sales.replace(/[$,]/g, '')) || 0;
+                        aVal = parseFloat(a.sales.replace(/[$₹,]/g, '')) || 0;
+                        bVal = parseFloat(b.sales.replace(/[$₹,]/g, '')) || 0;
                         break;
                     case 'rank':
                         aVal = parseInt(a.rank) || 0;
                         bVal = parseInt(b.rank) || 0;
                         break;
                     case 'price':
-                        // Extract numeric value from price string (e.g., "₹1870" -> 1870)
-                        aVal = parseFloat(a.price.replace(/[₹,$]/g, '')) || 0;
-                        bVal = parseFloat(b.price.replace(/[₹,$]/g, '')) || 0;
+                        aVal = parseFloat(a.price.replace(/[$₹,]/g, '')) || 0;
+                        bVal = parseFloat(b.price.replace(/[$₹,]/g, '')) || 0;
                         break;
                     case 'merchant':
                         aVal = a.merchant.toLowerCase();
@@ -785,19 +811,17 @@
                 }
             });
             
-            currentPage = 1; // Reset to first page after sorting
+            currentPage = 1;
             renderTable();
         }
 
         function updateSortIcons() {
-            // Reset all icons
             var rankIcon = document.getElementById('rank-sort-icon');
             var salesIcon = document.getElementById('sales-sort-icon');
             
             if (rankIcon) rankIcon.textContent = '↕️';
             if (salesIcon) salesIcon.textContent = '↕️';
             
-            // Update active column icon
             if (currentSort.column && currentSort.direction) {
                 var iconElement = document.getElementById(currentSort.column + '-sort-icon');
                 if (iconElement) {
@@ -807,7 +831,6 @@
                 }
             }
             
-            // Reset other icons to gray
             [rankIcon, salesIcon].forEach(function(icon) {
                 if (icon && (!currentSort.column || !icon.id.includes(currentSort.column))) {
                     icon.classList.remove('text-blue-600');
@@ -818,7 +841,6 @@
 
         function applyAllFilters() {
             var searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            var country = document.getElementById('countrySelect').value;
             var platform = document.getElementById('platformSelect').value;
             var status = document.getElementById('statusSelect').value;
             var companySize = document.getElementById('companySizeSelect').value;
@@ -829,15 +851,13 @@
                     item.merchant.toLowerCase().includes(searchTerm) ||
                     item.city.toLowerCase().includes(searchTerm);
                 
-                var matchCountry = country === 'All' || item.country === country;
                 var matchPlatform = platform === 'All' || item.platform === platform;
                 var matchStatus = status === 'All' || item.status === status;
                 var matchCompanySize = companySize === 'All' || item.companySize === companySize;
 
-                return matchSearch && matchCountry && matchPlatform && matchStatus && matchCompanySize;
+                return matchSearch && matchPlatform && matchStatus && matchCompanySize;
             });
 
-            // Apply current sorting after filtering
             if (currentSort.column && currentSort.direction) {
                 applySorting();
             } else {
@@ -856,7 +876,8 @@
 
             var statsHtml = '';
             Object.keys(stats).forEach(function(country) {
-                statsHtml += '<div>' + country + ': ' + stats[country] + ' records</div>';
+                var flag = country === 'USA' ? '🇺🇸' : '🇮🇳';
+                statsHtml += '<div>' + flag + ' ' + country + ': ' + stats[country] + ' records</div>';
             });
             
             document.getElementById('countryStats').innerHTML = statsHtml;
@@ -864,13 +885,11 @@
 
         function clearFilters() {
             document.getElementById('searchInput').value = '';
-            document.getElementById('countrySelect').value = 'India';
             document.getElementById('platformSelect').value = 'All';
             document.getElementById('statusSelect').value = 'All';
             document.getElementById('companySizeSelect').value = 'All';
             document.getElementById('sortSelect').value = '';
             
-            // Reset sorting
             currentSort = { column: null, direction: null };
             updateSortIcons();
             
@@ -907,7 +926,6 @@
         function exportCurrentView() {
             var csvContent = "data:text/csv;charset=utf-8,";
             
-            // Headers
             var headers = [];
             var visibleColumns = [
                 { key: 'domain', name: 'Domain', visible: !document.querySelector('.col-domain').classList.contains('hidden') },
@@ -931,13 +949,11 @@
             
             csvContent += headers.join(",") + "\r\n";
             
-            // Data rows
             filteredData.forEach(function(item) {
                 var row = [];
                 visibleColumns.forEach(function(col) {
                     if (col.visible) {
                         var value = item[col.key] || '';
-                        // Escape commas and quotes in CSV
                         if (value.toString().includes(',') || value.toString().includes('"')) {
                             value = '"' + value.toString().replace(/"/g, '""') + '"';
                         }
@@ -947,11 +963,10 @@
                 csvContent += row.join(",") + "\r\n";
             });
 
-            // Download the CSV
             var encodedUri = encodeURI(csvContent);
             var link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "store_leads_" + currentCategory.replace(/\s+/g, '_').toLowerCase() + "_filtered_" + new Date().toISOString().split('T')[0] + ".csv");
+            link.setAttribute("download", "store_leads_" + currentCountry.toLowerCase() + "_" + currentCategory.replace(/\s+/g, '_').toLowerCase() + "_filtered_" + new Date().toISOString().split('T')[0] + ".csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -965,7 +980,7 @@
                 return;
             }
             
-            alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n📊 Collections available:\n- fashion_and_apparel\n- beauty_and_fitness\n- home_and_garden\n- food_and_drink\n- business_and_industrial\n- auto_and_vehicles\n- arts_and_entertainment\n- consumer_electronics\n- finance\n- gifts_and_special_events\n- health\n- jobs_and_education\n- pets_and_animals\n- sports\n- toys_and_hobbies\n- travel');
+            alert('🔥 Testing Firestore connection...\n\n✅ Firebase initialized successfully!\n📊 Collections available:\n\n🇮🇳 INDIA:\n- fashion_and_apparel\n- beauty_and_fitness\n- home_and_garden\n- food_and_drink\n- business_and_industrial\n- auto_and_vehicles\n- arts_and_entertainment\n- consumer_electronics\n- finance\n- gifts_and_special_events\n- health\n- jobs_and_education\n- pets_and_animals\n- sports\n- toys_and_hobbies\n- travel\n\n🇺🇸 USA:\n- fashion_and_apparel_usa\n- beauty_and_fitness_usa\n- home_and_garden_usa\n- food_and_drink_usa\n- business_and_industrial_usa\n- auto_and_vehicles_usa\n- arts_and_entertainment_usa\n- consumer_electronics_usa\n- finance_usa\n- gifts_and_special_events_usa\n- health_usa\n- jobs_and_education_usa\n- pets_and_animals_usa\n- sports_usa\n- toys_and_hobbies_usa\n- travel_usa');
         }
 
         function loadSampleDataButton() {
@@ -974,13 +989,12 @@
                 return;
             }
             
-            alert('🔄 Refreshing data from Firestore...\n\nReloading ' + currentCategory + ' records from your Cloud Firestore database.');
-            loadDataFromFirestore(currentCategory);
+            var countryFlag = currentCountry === 'USA' ? '🇺🇸' : '🇮🇳';
+            alert('🔄 Refreshing data from Firestore...\n\nReloading ' + currentCategory + ' records from ' + countryFlag + ' ' + currentCountry + ' database.');
+            loadDataFromFirestore(currentCountry, currentCategory);
         }
 
-        // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-            // Always try to load from Firestore since Firebase is working
             if (!window.db) {
                 document.getElementById('statusText').innerHTML = 
                     '❌ Firebase not configured. Please check your configuration.';
@@ -990,21 +1004,18 @@
                 renderTable();
                 updateCountryStats();
             } else {
-                // Try loading from Firestore
                 setTimeout(() => {
-                    loadDataFromFirestore(currentCategory);
+                    loadDataFromFirestore(currentCountry, currentCategory);
                 }, 100);
             }
         });
 
-        // Close modal when clicking outside
         document.getElementById('exportModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeExportModal();
             }
         });
 
-        // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeExportModal();
