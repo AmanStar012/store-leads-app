@@ -412,6 +412,23 @@
                 'Sports': 'https://drive.google.com/file/d/1vcc3nYrcwIPbyndgXJWGK-K8HbE7SQD6/view?usp=sharing',
                 'Toys & Hobbies': 'https://drive.google.com/file/d/16GDHsNUTYWBnEhGjG-Yk5zFeEblvVJ6Y/view?usp=sharing',
                 'Travel': 'https://drive.google.com/file/d/1qOyAcYC-giwPXB97z7pVGQ8K9FPIeEyY/view?usp=sharing'
+            },
+            'UAE' : {
+                'Fashion & Apparel': 'https://drive.google.com/file/d/1dhgHFu4N0IYF0elxWaoNr2YrryywgiJ0/view?usp=sharing',
+                'Beauty & Fitness': 'https://drive.google.com/file/d/1GiiSNdKEWoQsLzNafvxXMoUBK7kXerD4/view?usp=sharing',
+                'Home & Garden': 'https://drive.google.com/file/d/1gvcjzBN63b-28BDv1GJwdgXAju7La9yY/view?usp=sharing',
+                'Food & Drink': 'https://drive.google.com/file/d/1GyRiS--CBydzZjPiJe5PCC6gECIsvr2w/view?usp=sharing',
+                'Business & Industrial': 'https://drive.google.com/file/d/1z-FDfvIh7yKifE3Bsm9RZooW-IxFqn3O/view?usp=sharing',
+                'Auto & Vehicles': 'https://drive.google.com/file/d/1A3Jn_6XmfkbmL_FgZasYHiAzfp4MR28p/view?usp=sharing',
+                'Arts & Entertainment': 'https://drive.google.com/file/d/1e0ghzMb_LOrhNSS171GTYfdtnzbC9xSz/view?usp=sharing',
+                'Consumer Electronics': 'https://drive.google.com/file/d/1WzGD99NNC6bitabM6uOFO7XU8Ewzbky-/view?usp=sharing',
+                'Finance': 'https://drive.google.com/file/d/1x2j358GmVu5GOiY5xMQd_gE5nvhX2pju/view?usp=sharing',
+                'Health': 'https://drive.google.com/file/d/1_uTDh1pRo37xbVCOLyg6fTbHKlQUxv68/view?usp=sharing',
+                'Jobs & Education': 'https://drive.google.com/file/d/1wBzEEih_cDJF6afjYXaG6SgmEdx-U4Ym/view?usp=sharing',
+                'Pets & Animals': 'https://drive.google.com/file/d/1BhqbVuxijM6kO5iNcbE38kt_fHHOnX9m/view?usp=sharing',
+                'Sports': 'https://drive.google.com/file/d/1X8GeNPtfteZ4NXWgM2TFnEJ-B8XJ-teX/view?usp=sharing',
+                'Toys & Hobbies': 'https://drive.google.com/file/d/12a3GzSIymFgh-RBWzyY29N83Ud-DWEnq/view?usp=sharing',
+                'Travel': 'https://drive.google.com/file/d/12xOEHo49ZSdO4zYwxL4ZdLo63MMBXPsm/view?usp=sharing'
             }
         };
 
@@ -461,7 +478,24 @@
                 'Sports': 'sports_usa',
                 'Toys & Hobbies': 'toys_and_hobbies_usa',
                 'Travel': 'travel_usa'
-            }
+            },
+           'UAE': {
+                'Fashion & Apparel': 'fashion_and_apparel_uae',
+                'Beauty & Fitness': 'beauty_and_fitness_uae',
+                'Home & Garden': 'home_and_garden_uae',
+                'Food & Drink': 'food_and_drink_uae',
+                'Business & Industrial': 'business_and_industrial_uae',
+                'Auto & Vehicles': 'auto_and_vehicles_uae',
+                'Arts & Entertainment': 'arts_and_entertainment_uae',
+                'Consumer Electronics': 'consumer_electronics_uae',
+                'Finance': 'finance_uae',
+                'Health': 'health_uae',
+                'Jobs & Education': 'jobs_and_education_uae',
+                'Pets & Animals': 'pets_and_animals_uae',
+                'Sports': 'sports_uae',
+                'Toys & Hobbies': 'toys_and_hobbies_uae',
+                'Travel': 'travel_uae'
+           }
         };
 
         function getCompanySize(employeeCount) {
@@ -567,7 +601,7 @@
                     allData.push(item);
                 });
                 
-                var countryFlag = countryName === 'USA' ? '🇺🇸' : '🇮🇳';
+                var countryFlag = countryName === 'USA' ? '🇺🇸' : '🇮🇳' : 'AE';
                 document.getElementById('statusText').textContent = 
                     '✅ ' + allData.length + ' ' + categoryName + ' records loaded from ' + countryFlag + ' ' + countryName;
                 
@@ -705,7 +739,7 @@
             currentCountry = select.value;
             currentPage = 1;
             
-            var countryFlag = currentCountry === 'USA' ? '🇺🇸' : '🇮🇳';
+            var countryFlag = currentCountry === 'USA' ? '🇺🇸' : '🇮🇳' : 'AE' ;
             document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records from ' + countryFlag + ' ' + currentCountry + '...';
             updateExportModalContent();
             
@@ -717,7 +751,7 @@
             currentCategory = select.value;
             currentPage = 1;
             
-            var countryFlag = currentCountry === 'USA' ? '🇺🇸' : '🇮🇳';
+            var countryFlag = currentCountry === 'USA' ? '🇺🇸' : '🇮🇳' : 'AE' ;
             document.getElementById('statusText').textContent = '🔄 Loading ' + currentCategory + ' records from ' + countryFlag + ' ' + currentCountry + '...';
             updateExportModalContent();
             
